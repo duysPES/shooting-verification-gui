@@ -3,9 +3,10 @@ import PySimpleGUI as sg
 
 class LayOuts:
     def main_menu(self):
-        layout = sg.Menu([['Edit', ['Change Expected Amount']]],
-                         tearoff=False,
-                         key='main_menu')
+        layout = sg.Menu(
+            [['Edit', ['Change Expected Amount']], ['Simulation', ['Run']]],
+            tearoff=False,
+            key='main_menu')
 
         return layout
 
@@ -85,4 +86,17 @@ class LayOuts:
              self.column1_layout(),
              self.column2_layout()],
         ]
+        return layout
+
+    def simulation_layout(self):
+        layout = [[
+            sg.Text("Awaiting Connection...",
+                    key='label_connection_status',
+                    size=(30, 1)),
+        ], [
+            sg.Multiline(key='ml_main', size=(30, 10)),
+        ], [
+            sg.Input(),
+        ], [sg.Button("Start Inventory", key='button_inventory'),
+            sg.Exit()]]
         return layout

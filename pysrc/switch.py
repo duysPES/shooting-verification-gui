@@ -1,6 +1,6 @@
-
-
 from pysrc.errors import NotValidSwitchObj, SwitchDoesNotExist
+import struct
+
 
 class SwitchManager:
     switches = dict()
@@ -24,9 +24,9 @@ class SwitchManager:
         found = True
         for addr in self.switches.keys():
             if address == addr:
-                return found 
+                return found
         return not found
-    
+
     def get(self, position):
         for switch in self.switches.values():
             if switch.position == position:
@@ -38,7 +38,18 @@ class SwitchManager:
 
 
 class Switch:
-    def __init__(self, position, address, raw):
-        self.address = address
+    def __init__(self, position, raw):
         self.position = position
-        self.raw_address = [int.from_bytes(i, byteorder='big', signed=False) for i in raw]
+        print(raw)
+
+        self.raw_address = list(struct.unpack("B" * len(raw), raw))
+        # self.raw_address = [
+        #     int.from_bytes(i, byteorder='big', signed=False) for i in raw
+        # ]
+
+        self.address = self.hex(self.raw_address[:2])
+        self.package = self.raw_address[2:-1]
+        self.chksum = self.raw_address[-1]
+
+    def hex(self, collection):
+        return "0x" + "".join(["{:x}".format(i) for i in collection])
