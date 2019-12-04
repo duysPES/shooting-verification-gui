@@ -1,5 +1,5 @@
 [package]
-name = "pysimplegui"
+name = "states"
 version = "0.1.0"
 authors = ["duysqubix <duys@qubixat.com>"]
 edition = "2018"
