@@ -32,7 +32,7 @@ class LayOuts:
                                border_width=1,
                                layout=[
                                    [
-                                       sg.Text('10',
+                                       sg.Text('3',
                                                size=(2, 1),
                                                font='any 16',
                                                key='label_expected_amount')
@@ -70,7 +70,7 @@ class LayOuts:
                                visible=False)
             ],
             [
-                sg.Multiline(default_text='adsf',
+                sg.Multiline(default_text='',
                              size=(25, 30),
                              key='multiline_switch_canvas')
             ],

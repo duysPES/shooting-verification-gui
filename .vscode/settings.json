@@ -1,4 +1,4 @@
 {
-    "python.pythonPath": "C:\\Users\\duan_\\virtualenvs\\py\\Scripts\\python.exe",
+    "python.pythonPath": "/home/pi/venv/py/bin/python",
     "python.formatting.provider": "yapf"
 }
