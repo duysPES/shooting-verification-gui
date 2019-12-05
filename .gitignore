@@ -1,5 +1,6 @@
 sf_sim/target
 **/*.rs.bk
+*.pyc
 
 
 #Added by cargo

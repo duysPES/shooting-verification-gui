@@ -119,7 +119,7 @@ if __name__ == "__main__":
     client.connect()
     startup_msg = client.read()
     # print("Startup", startup_msg)
-    event, values = window.read(timeout=0.01)
+    event, values = window.read(timeout=0.1)
     write_element('label_connection_status', startup_msg)
 
     while True:

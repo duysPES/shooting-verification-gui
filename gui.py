@@ -7,7 +7,8 @@ from multiprocess.connection import wait
 from pysrc.threads import Thread, ThreadProcesses, MultiWorkers, ConnMode, InfoType
 from pysrc.lisc import LISC
 from pysrc.errors import NotValidInfoType, NotValidModeType, ConnPackageSwitchValueError
-from pysrc.switch_sim import SimClient
+from pysrc.switch_sim import SimClient, Simulator
+from pysrc.states_sim import SimStates, SimStateMachine
 
 c = Config().dotted_dict()
 
@@ -81,46 +82,8 @@ class SimpleShootingInterface:
                         break
 
             if 'Run' == values['main_menu']:
-                print('running sim')
-                win2 = sg.Window('Switch Simulator Server',
-                                 self.lo.simulation_layout())
-                client = SimClient(server='localhost', port=8000)
-
-                connected = False
-                while True:
-                    if not connected:
-                        status, msg = client.connect()
-                        if status:
-                            print(msg)
-                            connection_status = client.read()
-                            print(connection_status)
-                            _, _ = win2.read(timeout=0.01)
-                            self.write_element(win2, 'label_connection_status',
-                                               connection_status)
-                            connected = True
-
-                    ev2, val2 = win2.read(timeout=0.1)
-
-                    if ev2 is None or ev2 == 'Exit':
-                        win2.close()
-                        break
-
-                    if ev2 == "button_inventory":
-                        print('hello')
-                        self.write_element(win2, "ml_main",
-                                           "Scanning for switches...", True)
-                        client.write(b"begin_inventory")
-
-                    data = client.read()
-
-                    if data == 'closed connection':
-                        print("Remote Host closed connection")
-                        win2.close()
-                        break
-
-                    if len(data) > 0:
-                        print("Data: ", data)
-                        self.write_element(win2, "ml_main", data, True)
+                simulator = Simulator(self)
+                simulator.run()
 
             if 'button_inventory' in event:
                 expected = self.window['label_expected_amount'].DisplayText

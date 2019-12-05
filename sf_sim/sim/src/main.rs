@@ -4,6 +4,7 @@ use states::SwitchStates;
 use states::*;
 use std::error::Error;
 use std::fmt::{Debug, Display};
+use std::net::Shutdown;
 use std::string::ToString;
 use std::time::Duration;
 use tokio;
@@ -44,7 +45,7 @@ fn nl(mut msg: String) -> String {
 //     }
 // }
 
-async fn process_client(mut stream: TcpStream) {
+async fn process_client(mut stream: TcpStream) -> bool {
     let mut data = [0 as u8; 50]; // using 50 byte buffer
 
     let mut state_machine: SwitchStateMachine = SwitchStateMachine::null();
@@ -58,7 +59,15 @@ async fn process_client(mut stream: TcpStream) {
 
             // let msg_hex = &data[0..size];
             let msg_string = String::from_utf8_lossy(&data[0..size]);
-            println!("{}", msg_string);
+            if size == 0 {
+                println!(
+                    "Done with client, terminating connection [{}]",
+                    stream.peer_addr().unwrap()
+                );
+                stream.shutdown(Shutdown::Both).unwrap();
+                return false;
+            }
+            println!("MSG: [{}], size: {}", msg_string, size);
 
             if msg_string == "begin_inventory" {
                 let first_switch = Switch::new(SWITCH_ADDR[cur_switch]);
@@ -126,12 +135,11 @@ async fn process_client(mut stream: TcpStream) {
                 "An error occurred, terminating connection with {}",
                 stream.peer_addr().unwrap()
             );
-            // stream.shutdown(Shutdown::Both).unwrap();
             false
         }
     } {}
 
-    println!("Done with client, terminating connection");
+    false
 }
 
 #[tokio::main]
