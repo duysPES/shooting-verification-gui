@@ -2,10 +2,12 @@ import socket
 import time
 import sys
 import time
-
+from pysrc.config import Config
 import PySimpleGUI as sg
 from pysrc.switch import Switch, SwitchManager
 from pysrc.states_sim import SimStateMachine, SimStates
+
+c = Config().dotted_dict()
 
 
 class SimClient:
@@ -23,7 +25,7 @@ class SimClient:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        print('cleaning up resources')
+        # print('cleaning up resources')
         self.shutdown()
 
     def connect(self):
@@ -42,7 +44,7 @@ class SimClient:
             except Exception:
                 elapsed_time = time.time() - start
 
-    def read(self, timeout=0.01, delay=0.0):
+    def read(self, output, timeout=0.01, delay=0.0):
         """
         Will return a switch object if successfuly,
         otherwise will return "closed connection" object
@@ -74,6 +76,8 @@ class SimClient:
             # most likely information is a long byte string simulating a switch
             switch = Switch(position=self.switch_counter, raw=data[0])
             if not self.switch_manager.switch_exists(address=switch.address):
+
+                output("Found Switch: {}".format(switch.address))
                 self.switch_manager.add(switch)
                 self.switch_counter += 1
 
@@ -102,7 +106,8 @@ class Simulator:
         self.port = 8000
 
         layout = self.gui.lo.simulation_layout()
-        self.window = sg.Window('Switch Simulator Server', layout)
+        self.window = sg.Window(
+            'Switch Simulator Server {}'.format(c.SIM_SERVER.version), layout)
 
     def run(self):
         with SimClient(server=self.server, port=self.port) as client:
@@ -114,11 +119,14 @@ class Simulator:
                 event, _ = self.window.read(timeout=self.gui_timeout)
 
                 if event == 'button_inventory':
+                    client.switch_manager.switches.clear()
+                    self.clear()
+                    self.server_mode('None Detected')
                     self.output("Scanning for switches...")
                     client.write(b'begin_inventory')
                     self.state_handler = SimStateMachine(SimStates.awaiting)
 
-                data = client.read()
+                data = client.read(output=self.output)
 
                 if event is None or event == 'Exit' or data == 'closed connection':
                     print("Remote host closed connection")
@@ -128,10 +136,31 @@ class Simulator:
                 if isinstance(data, Switch):
                     # parses data and acts accordingly as well as changes to next
                     # state depending on incoming data
-                    self.state_handler.execute(client, data)
+                    # print(self.state_handler.current_state)
+
+                    self.state_handler.execute(client, data, self)
+                    # print(self.state_handler.current_state)
+                elif len(data) > 0:
+                    # here we can assume any other data send via socket relates to the status
+                    # of which the sim switches are in.. the different modes [status, goidle]
+                    switches = client.switch_manager
+                    latest_switch = switches.latest_switch
+                    msg = "[{}] {}".format(latest_switch, data)
+                    self.server_mode(msg)
+                    print("From server: ", data)
 
     def output(self, msg, append=True):
         self.gui.write_element(self.window, 'ml_main', msg, append)
+
+    def status_output(self, msg):
+        self.window.Element('ml_status')(msg)
+
+    def clear(self):
+        self.window.Element('ml_status')('')
+        self.window.Element('ml_main')('')
+
+    def server_mode(self, msg):
+        self.window.Element('label_server_mode')(msg)
 
     def update_conn_status(self, msg):
         self.window.Element('label_connection_status')(msg)
@@ -140,7 +169,7 @@ class Simulator:
         status, msg = client.connect()
         if status:
             print(msg)
-            connection_status = client.read(delay=0.2)
+            connection_status = client.read(delay=0.2, output=self.output)
             print(connection_status)
             _, _ = self.window.read(timeout=self.gui_timeout)
             self.update_conn_status(connection_status)

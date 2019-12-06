@@ -90,13 +90,19 @@ class LayOuts:
 
     def simulation_layout(self):
         layout = [[
-            sg.Text("Awaiting Connection...",
-                    key='label_connection_status',
-                    size=(30, 1)),
-        ], [
-            sg.Multiline(key='ml_main', size=(30, 10)),
-        ], [
-            sg.Input(),
-        ], [sg.Button("Start Inventory", key='button_inventory'),
-            sg.Exit()]]
+            sg.Column(layout=[[
+                sg.Text("Awaiting Connection...",
+                        key='label_connection_status',
+                        size=(20, 1)),
+            ], [
+                sg.Multiline(key='ml_main', size=(30, 10)),
+            ], [
+            ], [sg.Button("Start Inventory", key='button_inventory'),
+                sg.Exit()]]),
+            sg.Column(layout=[[
+                sg.Text('Server Mode: ', size=(20,1))],[
+                sg.Text('None Detected', size=(20,1), key='label_server_mode')],[sg.Text("Switch Status")],
+                [sg.Multiline(key='ml_status', size=(15,10)),]]
+            )
+            ]]
         return layout

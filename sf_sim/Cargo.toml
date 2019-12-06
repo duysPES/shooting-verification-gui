@@ -1,5 +1,6 @@
 [workspace]
 members = [
-    "sim",
-    "states"
+    "bin/sim",
+    "lib/states",
+    "lib/rand"
 ]
