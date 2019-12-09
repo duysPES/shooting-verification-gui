@@ -81,7 +81,7 @@ class Switch:
         return "0x" + "".join(["{:x}".format(i).zfill(2) for i in collection])
 
     def gen_package(self, msg):
-        raw = bytes(self.raw[:3])
+        raw = bytes(self.raw[:2])
         if not isinstance(msg, bytes):
             msg = bytes([msg])
 

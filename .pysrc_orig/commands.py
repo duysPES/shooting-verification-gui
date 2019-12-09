@@ -2,11 +2,12 @@ from enum import Enum
 
 
 class Commands(Enum):
-    ACK = b"\x06"
-    NACK = b"\x15"
-    GoInactive = b"\x1e"
-    SendStatus = b"\x05"
+    ACK = 0x06
+    NACK = 0x15
+    GoInactive = 0x1E
+    SendStatus = 0x05
 
+    # Fire = 0x5A
     @staticmethod
     def is_ack(msg):
         return Commands.ACK.value == msg

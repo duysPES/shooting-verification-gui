@@ -1,39 +1,33 @@
 import serial
 import time
 import multiprocessing as mp
+from pysrc.threads import MultiWorkers, ThreadProcesses
 from pysrc.errors import ChkSumError, IncorrectPayLoad, ErrorCodes
 from pysrc.switch import SwitchManager, Switch
-from pysrc.commands import Commands
-from pysrc.thread import ConnMode, InfoType, ConnPackage
 
 
 class LISC(serial.Serial):
     incoming_buffer = []
+    workers = MultiWorkers()
     switch_manager = SwitchManager()
 
-    def do_inventory(self, queue):
-        package = ConnPackage(queue)
-        package.debug("Resetting LISC")
-        self.reset()
-        # response = self.read_serial(lisc)
-        for i in range(1):
-            response = self.listen()
-            # print("Response ", response.hex())
+    def echo(self):
+        """
+        Opens up port and prints any output to stdout
+        """
+        func = ThreadProcesses.loop_and_read
+        args = (
+            self,
+            5,
+        )  # loop_and_read args (ser, timeout)
+        self.workers.thread(name='echo', func=func, args=args).start()
 
-            switch = Switch(position=i, raw=response)
-            package.switch(switch)
-            self.switch_manager.add(switch)
-
-            package.debug("Getting Status of :{}".format(switch.address))
-            msg = switch.gen_package(Commands.SendStatus.value)
-            self.write(msg)
-
-            response = self.listen()
-            # print("Response ", response.hex())
-            package.debug(response.hex())
-            # queue.put(response)
-            # queue.put({"inventory": False})
-            package.done()
+        parent = self.workers.threads['echo'].parent
+        while 1:
+            try:
+                print(parent.recv(), end="")
+            except EOFError:
+                break
 
     def send(self, byte_string):
         """
@@ -41,16 +35,37 @@ class LISC(serial.Serial):
         """
         self.write(byte_string)
 
-    def listen(self, timeout=2):
-        now = time.time()
-        buf = b""
+    def get_response_from_parent(self, parent):
 
-        while time.time() - now <= timeout:
-            in_waiting = self.inWaiting()
-            if in_waiting > 0:
-                buf += self.read(in_waiting)
-                now = time.time()
-        return buf
+        while parent.poll(timeout=5):
+            try:
+                return parent.recv()
+            except EOFError:
+                return None
+
+    def get_response_from_thread(self, thread_name):
+        thread = self.workers.threads[thread_name]
+        response = self.get_response_from_parent(thread.parent)
+        return response
+
+    def recieve(self, timeout=5, use_worker=True):
+        """
+        Listens on port channel for incoming information
+        returns information.
+
+        Has ability to spawn a async task by using avaiable worker.
+        """
+        if not use_worker:  #turn this method into sync one
+            response = ThreadProcesses.recieve_bytes(None, self, timeout)
+            return response
+
+        func = ThreadProcesses.recieve_bytes
+        args = (self, 1)  # recieve_bytes func args: (ser, timeout)
+        thread_name = 'recieve_bytes'
+        self.workers.thread(name=thread_name, func=func, args=args).start()
+
+        response = self.get_response_from_thread(thread_name)
+        return response
 
     def parse_response(self, response, expected=None):
         """
@@ -108,16 +123,15 @@ class LISC(serial.Serial):
 
     def chksum(self, data):
         """
-        return a bytes of data with included checksum
+        return a list of data with included checksum
         """
+        if not isinstance(data, list):
+            data = list(data)
         chksum = 0
-        if not isinstance(data, bytes):
-            data = bytes([data])
-
         for element in data:
             chksum ^= element
 
-        data += bytes([chksum])
+        data.append(chksum)
 
         return data
 
@@ -136,7 +150,7 @@ class LISC(serial.Serial):
 
     def reset(self):
         self.send(b'zl')
-        self.delay(2)
+        self.delay(3)
         self.send(b'zL')
 
 

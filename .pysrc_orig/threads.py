@@ -4,6 +4,7 @@ from enum import Enum, auto
 from collections import deque
 from pysrc.commands import Commands
 
+
 class ConnMode(Enum):
     DEBUG = 0,
     MAIN = 1,
@@ -18,13 +19,15 @@ class ConnPackage:
     messages = deque([])
     max_messages = 10
 
-
     def __init__(self, sender_obj):
         self.sender = sender_obj
 
     def add(self, package):
+
         if not isinstance(package, (tuple, list)):
-            raise ValueError("Package is not tuple or list")
+            raise ValueError(
+                "Package is not tuple or list, value: {}, type: {}", package,
+                type(package))
 
         if len(self.messages) == self.max_messages:
             # rotate and repalce
@@ -38,13 +41,13 @@ class ConnPackage:
         self.sender.send(self.messages)
 
     def create_package(self, infotype, mode, msg):
-        packet =  (infotype, mode, msg)
+        packet = (infotype, mode, msg)
         self.add(packet)
 
     def create_switch_package(self, switch):
         self.create_package(infotype=InfoType.SWITCH,
-                                      mode=ConnMode.MAIN,
-                                      msg=(switch.position, switch.address))
+                            mode=ConnMode.MAIN,
+                            msg=(switch.position, switch.address))
 
 
 class ThreadProcesses:
@@ -61,7 +64,7 @@ class ThreadProcesses:
         """
         package = ConnPackage(child)
 
-        with LISC(port='/dev/ttyUSB0', baudrate=9600, timeout=0) as lisc:
+        with LISC(port='/dev/ttyS6', baudrate=9600, timeout=0) as lisc:
             ### RESET LISC ###
             package.create_package(infotype=InfoType.OTHER,
                                    mode=ConnMode.DEBUG,
@@ -90,14 +93,29 @@ class ThreadProcesses:
                 package.create_switch_package(switch)
                 package.send()
 
-                # send go inactive
-                cmd = Commands.GoInactive
-                switch = lisc.switch_manager.get(sw_num+1)
+                # send go SendStatus
+                cmd = Commands.SendStatus
+                switch = lisc.switch_manager.get(sw_num + 1)
                 packet = lisc.create_command_packet_for(switch, cmd)
                 print('sending: {}'.format(packet))
                 lisc.send(packet)
-                lisc.delay(1)
-                lisc.echo()
+
+                # read response
+                now = time.time()
+                buf = []
+                while time.time() - now <= 2:
+                    in_waiting = lisc.inWaiting()
+                    if in_waiting > 0:
+                        c = lisc.read(in_waiting)
+                        buf.append(c)
+                        now = time.time()
+
+                # print(b"".join(buf).hex())
+                info_type = InfoType.SWITCH
+                mode = ConnMode.DEBUG
+                msg = b"".join(buf)
+                package.create_package(info_type, mode, msg)
+                package.send()
 
     @staticmethod
     def recieve_bytes(child, ser, timeout, tries=4):
@@ -118,8 +136,9 @@ class ThreadProcesses:
                 start = time.time()
 
         if len(buffer) == 0:
-            ThreadProcesses.recieve_bytes(child, ser, timeout, tries=tries-1)
-        
+            ThreadProcesses.recieve_bytes(child, ser, timeout, tries=tries - 1)
+
+        buffer = b"".join(buffer)
         if child is None:
             return buffer
         else:
@@ -143,7 +162,8 @@ class ThreadProcesses:
 
             bytes_to_read = ser.inWaiting()
             data = ser.read(bytes_to_read)
-
+            if len(data) > 0:
+                print("DATA: ", data)
             if data:
                 start = time.time()
                 try:
