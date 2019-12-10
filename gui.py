@@ -7,7 +7,10 @@ from pysrc.switch_sim import SimClient, Simulator
 from pysrc.states_sim import SimStates, SimStateMachine
 from multiprocessing import Process, Queue
 import time
-from pysrc.thread import InfoType
+from pysrc.thread import InfoType, ConnMode
+from collections import deque
+from pysrc.switch import Switch
+from pysrc.commands import Status, Commands
 
 c = Config().dotted_dict()
 
@@ -20,11 +23,13 @@ class SimpleShootingInterface:
 
     def __init__(self):
         self.layout = self.lo.main_layout()
-        self.window = sg.Window("SSI v{}".format(c.SSI.version),
+        self.window = sg.Window("",
                                 layout=self.layout,
                                 default_element_size=(40, 1),
                                 grab_anywhere=False,
-                                size=(str(c.SSI.width), str(c.SSI.height)))
+                                size=(str(c.SSI.width), str(c.SSI.height)),
+                                finalize=True)
+        self.set_window_title()
 
     def send_to_multiline(self, widget, msg, clear=False):
         if clear:
@@ -52,11 +57,16 @@ class SimpleShootingInterface:
         self.send_to_multiline(widget=widget, msg=msg, clear=clear)
 
     def update_anticipated(self, num):
-        widget = self.window['label_anticipated_amount']
-        widget(str(num))
+        w = self.window['label_anticipated_amount']
+        w(num)
+
+    def set_window_title(self, msg=""):
+        msg = "SSI v{} {}".format(c.SSI.version, msg)
+        self.window.TKroot.title(msg)
 
     def loop(self):
         inventory = False
+        vol_temp_window = None
 
         while True:
             event, values = self.window.read(timeout=c.SSI.async_timeout)
@@ -88,7 +98,7 @@ class SimpleShootingInterface:
 
             if 'button_inventory' in event:
                 inventory = True
-                from pysrc.commands import Commands
+                self.set_window_title()
                 with LISC(port='/dev/ttyS6', baudrate=9600, timeout=0) as lisc:
                     thread = Process(target=lisc.do_inventory,
                                      args=(self.inventory_queue, ))
@@ -97,15 +107,41 @@ class SimpleShootingInterface:
 
             if inventory:
                 try:
-                    from_queue = self.inventory_queue.get_nowait()
-                    if len(from_queue) > 0:
-                        info_type = from_queue[0]
+                    # returns a deque object with information
+                    msgs = self.inventory_queue.get_nowait()
+                    if not isinstance(msgs, deque):
+                        raise ValueError(
+                            "Message from queue is not ConnPackage obj")
 
+                    if len(msgs) > 0:
+
+                        info_type, mode, msg = msgs
                         if info_type == InfoType.KILL:
+                            self.send_mode(mode, "Done with Inventory")
                             inventory = False
 
-                        for item in from_queue:
-                            print(item)
+                        if info_type == InfoType.SWITCH:
+
+                            if mode == ConnMode.STATUS:
+                                pos, addr, status = msg
+                                print('status', status.hex())
+
+                                status = Status(status)
+                                voltage = status.voltage
+                                temp = status.temp
+
+                                msg = "{}V, {}C".format(voltage, temp)
+                                self.set_window_title(msg=msg)
+
+                            if mode == ConnMode.MAIN:
+                                pos, addr = msg
+                                self.update_anticipated(num=int(pos))
+                                msg = "--> {}: [{}]".format(pos, addr)
+                                self.send_mode(mode, msg)
+
+                        if info_type == InfoType.OTHER:
+                            self.send_mode(mode, msg)
+
                 except Exception:
                     pass
 
@@ -144,13 +180,17 @@ class SimpleShootingInterface:
     #     else:
     #         raise NotValidInfoType
 
-    # def send_mode(self, mode, payload):
-    #     if mode == ConnMode.DEBUG:
-    #         self.send_to_debug(msg=payload, clear=False)
-    #     elif mode == ConnMode.MAIN:
-    #         self.send_to_main(msg=payload, clear=False)
-    #     else:
-    #         raise NotValidModeType
+    def send_mode(self, mode, payload):
+        if mode == ConnMode.DEBUG:
+            self.send_to_debug(msg=payload, clear=False)
+        elif mode == ConnMode.MAIN:
+            self.send_to_main(msg=payload, clear=False)
+
+        elif mode == ConnMode.STATUS:
+            #@TODO
+            pass
+        else:
+            raise TypeError("Not a valid enum state")
 
 
 if __name__ == "__main__":

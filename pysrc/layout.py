@@ -106,3 +106,12 @@ class LayOuts:
             )
             ]]
         return layout
+
+    def vol_temp_layout(self):
+        layout = [
+            [sg.Text("Voltage", size=(10,1)), sg.Text('Temperature', size=(10,1))],
+            [sg.Text("N/A", key="label_voltage", size=(10,1)), sg.Text('N/A', size=(10,1),key='label_temperature')]
+        ]
+        return layout
+
+
