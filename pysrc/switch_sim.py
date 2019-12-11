@@ -9,6 +9,8 @@ from pysrc.states_sim import SimStateMachine, SimStates
 import subprocess
 import time
 import os
+import datetime
+from pysrc.logging import Log, LogType
 
 c = Config()
 
@@ -25,11 +27,13 @@ class SimClient:
         self.max_timeout = max_timeout
 
     def __enter__(self):
+        self.start_server()
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
         # print('cleaning up resources')
         self.shutdown()
+        self.stop_server()
 
     def connect(self):
         # attempt to connect to supplied sim server
@@ -92,6 +96,20 @@ class SimClient:
     def write(self, msg):
         self.socket.sendall(msg)
 
+    def server_send(self, msg):
+            msg = "{} [SERVER] => {}".format(datetime.datetime.now().ctime(), msg)
+            Log.log(msg=msg, to=LogType.server)
+
+    def start_server(self):
+        exe = os.getcwd() + "/sf_sim/target/release/sim"
+        self.server = subprocess.Popen(["{}".format(exe)])
+        print(self.server.stdout)
+
+    def stop_server(self):
+        # physically send ctrl-c to program.
+        self.server.terminate()
+        print(self.server.stdout)
+
     def shutdown(self):
         self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
@@ -115,18 +133,6 @@ class Simulator:
             'Switch Simulator Server {}'.format(c.sim_server("version")),
             layout)
 
-    def server_send(self, msg):
-        print("{} [SERVER] => {}".format())
-
-    def start_server(self):
-        exe = os.getcwd() + "/sf_sim/target/release/sim"
-        self.server = subprocess.Popen(["{}".format(exe)])
-        print(self.server.stdout)
-
-    def stop_server(self):
-        # physically send ctrl-c to program.
-        self.server.terminate()
-        print(self.server.stdout)
 
     def run(self):
         self.start_server()
@@ -172,6 +178,7 @@ class Simulator:
 
     def output(self, msg, append=True):
         self.gui.write_element(self.window, 'ml_main', msg, append)
+        
 
     def status_output(self, msg):
         self.window.Element('ml_status')(msg)

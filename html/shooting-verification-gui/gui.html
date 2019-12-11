@@ -1,0 +1,688 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.2" />
+<title>shooting-verification-gui.gui API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>shooting-verification-gui.gui</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import PySimpleGUI as sg
+from pysrc.config import Config
+from pysrc.layout import LayOuts
+import serial
+from pysrc.lisc import LISC
+from pysrc.switch_sim import SimClient, Simulator
+from pysrc.states_sim import SimStates, SimStateMachine
+from multiprocessing import Process, Queue
+import time
+from pysrc.thread import InfoType, ConnMode
+from collections import deque
+from pysrc.switch import Switch
+from pysrc.commands import Status, Commands
+
+c = Config()
+
+sg.change_look_and_feel(&#39;GreenTan&#39;)
+
+
+class SimpleShootingInterface:
+    lo = LayOuts()
+    inventory_queue = Queue()
+
+    def __init__(self):
+        self.layout = self.lo.main_layout()
+        self.window = sg.Window(&#34;&#34;,
+                                layout=self.layout,
+                                default_element_size=(40, 1),
+                                grab_anywhere=False,
+                                size=(str(c.ssi(&#34;width&#34;)),
+                                      str(c.ssi(&#34;height&#34;))),
+                                finalize=True)
+        self.set_window_title()
+
+    def send_to_multiline(self, widget, msg, clear=False):
+        if clear:
+            widget(msg)
+        else:
+            current = widget.get()
+            new_string = current + str(msg)
+            widget(new_string)
+
+    def write_element(self, window, key, msg, append=True):
+
+        ele = window.Element(key)
+        try:
+            ele.update(msg + &#39;\n&#39;, append=append)
+        except Exception:
+            print(&#34;label here&#34;, msg, ele)
+            ele.DisplayText = msg
+
+    def send_to_main(self, msg, clear=False):
+        widget = self.window[&#39;multiline_switch_canvas&#39;]
+        self.send_to_multiline(widget=widget, msg=msg, clear=clear)
+
+    def send_to_debug(self, msg, clear=False):
+        widget = self.window[&#39;multiline_default_output&#39;]
+        self.send_to_multiline(widget=widget, msg=msg, clear=clear)
+
+    def update_anticipated(self, num):
+        w = self.window[&#39;label_anticipated_amount&#39;]
+        w(num)
+
+    def set_window_title(self, msg=&#34;&#34;):
+        msg = &#34;SSI v{} {}&#34;.format(c.ssi(&#34;version&#34;), msg)
+        self.window.TKroot.title(msg)
+
+    def loop(self):
+        inventory = False
+        vol_temp_window = None
+
+        while True:
+            event, values = self.window.read(timeout=c.ssi(&#39;async_timeout&#39;))
+            if event != &#39;__TIMEOUT__&#39;:
+                print(event, values)
+            if event in (None, &#39;Quit&#39;):
+                break
+
+            if &#39;Change Expected Amount&#39; in event:
+                cur_val = self.window[&#39;label_expected_amount&#39;].DisplayText
+                layout = [[
+                    sg.Input(&#34;{}&#34;.format(cur_val), focus=True, key=&#39;input_box&#39;)
+                ], [sg.Button(&#39;Exit&#39;, bind_return_key=True)]]
+                win2 = sg.Window(&#34;Edit Expected Amount&#34;)
+
+                while True:
+                    ev2, vals2 = win2.read()
+                    if ev2 is None or ev2 == &#39;Exit&#39;:
+                        print(ev2, vals2)
+
+                        self.window[&#39;label_expected_amount&#39;](str(
+                            vals2[&#39;input_box&#39;]))
+                        win2.close()
+                        break
+
+            if &#39;Run&#39; == values[&#39;main_menu&#39;]:
+                simulator = Simulator(self)
+                simulator.run()
+
+            if &#39;button_inventory&#39; in event:
+                inventory = True
+                self.set_window_title()
+                with LISC(port=&#39;/dev/ttyS6&#39;, baudrate=9600, timeout=0) as lisc:
+                    thread = Process(target=lisc.do_inventory,
+                                     args=(self.inventory_queue, ))
+                    thread.start()
+                    # thread.join()
+
+            if inventory:
+                try:
+                    # returns a deque object with information
+                    msgs = self.inventory_queue.get_nowait()
+                    if not isinstance(msgs, deque):
+                        raise ValueError(
+                            &#34;Message from queue is not ConnPackage obj&#34;)
+
+                    if len(msgs) &gt; 0:
+
+                        info_type, mode, msg = msgs
+                        if info_type == InfoType.KILL:
+                            self.send_mode(mode, &#34;Done with Inventory&#34;)
+                            inventory = False
+
+                        if info_type == InfoType.SWITCH:
+
+                            if mode == ConnMode.STATUS:
+                                pos, addr, status = msg
+                                print(&#39;status&#39;, status.hex())
+
+                                status = Status(status)
+                                voltage = status.voltage
+                                temp = status.temp
+
+                                msg = &#34;{}V, {}C&#34;.format(voltage, temp)
+                                self.set_window_title(msg=msg)
+
+                            if mode == ConnMode.MAIN:
+                                pos, addr = msg
+                                self.update_anticipated(num=int(pos))
+                                msg = &#34;--&gt; {}: [{}]&#34;.format(pos, addr)
+                                self.send_mode(mode, msg)
+
+                        if info_type == InfoType.OTHER:
+                            self.send_mode(mode, msg)
+
+                except Exception:
+                    pass
+
+        self.window.close()
+
+    # def parse_type(self, msg):
+    #     #print(&#39;msg: &#39;, msg)
+    #     latest = msg[-1]
+    #     infotype, mode, payload = latest
+    #     #print(&#34;payload: &#34;, payload)
+
+    #     if infotype == InfoType.OTHER:
+    #         self.send_mode(mode, payload)
+
+    #     elif infotype == InfoType.SWITCH:
+    #         if not isinstance(payload, bytes):
+    #             print(&#34;value: {}, type: {}&#34;.format(payload, type(payload)))
+    #             raise ConnPackageSwitchValueError()
+    #         # add length of list where InfoType is SWITCH to msg
+    #         # at this point if InfoType is for switch, msg WILL be tuple
+
+    #         num_switch_msgs = 0
+    #         for m in msg:
+    #             print(&#34;Message: &#34;, m)
+    #             if m[0] == InfoType.SWITCH:
+    #                 num_switch_msgs += 1
+    #         pos, addr = payload
+    #         # display switches to canvas
+    #         main_canvas_msg = &#34;[{}] {}&#34;.format(pos, addr)
+
+    #         # update anticipated amount based on number of switch messages recieved
+    #         self.update_anticipated(num=num_switch_msgs)
+
+    #         self.send_mode(mode, main_canvas_msg)
+
+    #     else:
+    #         raise NotValidInfoType
+
+    def send_mode(self, mode, payload):
+        if mode == ConnMode.DEBUG:
+            self.send_to_debug(msg=payload, clear=False)
+        elif mode == ConnMode.MAIN:
+            self.send_to_main(msg=payload, clear=False)
+
+        elif mode == ConnMode.STATUS:
+            #@TODO
+            pass
+        else:
+            raise TypeError(&#34;Not a valid enum state&#34;)
+
+
+if __name__ == &#34;__main__&#34;:
+
+    gui = SimpleShootingInterface()
+    gui.loop()</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="shooting-verification-gui.gui.SimpleShootingInterface"><code class="flex name class">
+<span>class <span class="ident">SimpleShootingInterface</span></span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SimpleShootingInterface:
+    lo = LayOuts()
+    inventory_queue = Queue()
+
+    def __init__(self):
+        self.layout = self.lo.main_layout()
+        self.window = sg.Window(&#34;&#34;,
+                                layout=self.layout,
+                                default_element_size=(40, 1),
+                                grab_anywhere=False,
+                                size=(str(c.ssi(&#34;width&#34;)),
+                                      str(c.ssi(&#34;height&#34;))),
+                                finalize=True)
+        self.set_window_title()
+
+    def send_to_multiline(self, widget, msg, clear=False):
+        if clear:
+            widget(msg)
+        else:
+            current = widget.get()
+            new_string = current + str(msg)
+            widget(new_string)
+
+    def write_element(self, window, key, msg, append=True):
+
+        ele = window.Element(key)
+        try:
+            ele.update(msg + &#39;\n&#39;, append=append)
+        except Exception:
+            print(&#34;label here&#34;, msg, ele)
+            ele.DisplayText = msg
+
+    def send_to_main(self, msg, clear=False):
+        widget = self.window[&#39;multiline_switch_canvas&#39;]
+        self.send_to_multiline(widget=widget, msg=msg, clear=clear)
+
+    def send_to_debug(self, msg, clear=False):
+        widget = self.window[&#39;multiline_default_output&#39;]
+        self.send_to_multiline(widget=widget, msg=msg, clear=clear)
+
+    def update_anticipated(self, num):
+        w = self.window[&#39;label_anticipated_amount&#39;]
+        w(num)
+
+    def set_window_title(self, msg=&#34;&#34;):
+        msg = &#34;SSI v{} {}&#34;.format(c.ssi(&#34;version&#34;), msg)
+        self.window.TKroot.title(msg)
+
+    def loop(self):
+        inventory = False
+        vol_temp_window = None
+
+        while True:
+            event, values = self.window.read(timeout=c.ssi(&#39;async_timeout&#39;))
+            if event != &#39;__TIMEOUT__&#39;:
+                print(event, values)
+            if event in (None, &#39;Quit&#39;):
+                break
+
+            if &#39;Change Expected Amount&#39; in event:
+                cur_val = self.window[&#39;label_expected_amount&#39;].DisplayText
+                layout = [[
+                    sg.Input(&#34;{}&#34;.format(cur_val), focus=True, key=&#39;input_box&#39;)
+                ], [sg.Button(&#39;Exit&#39;, bind_return_key=True)]]
+                win2 = sg.Window(&#34;Edit Expected Amount&#34;)
+
+                while True:
+                    ev2, vals2 = win2.read()
+                    if ev2 is None or ev2 == &#39;Exit&#39;:
+                        print(ev2, vals2)
+
+                        self.window[&#39;label_expected_amount&#39;](str(
+                            vals2[&#39;input_box&#39;]))
+                        win2.close()
+                        break
+
+            if &#39;Run&#39; == values[&#39;main_menu&#39;]:
+                simulator = Simulator(self)
+                simulator.run()
+
+            if &#39;button_inventory&#39; in event:
+                inventory = True
+                self.set_window_title()
+                with LISC(port=&#39;/dev/ttyS6&#39;, baudrate=9600, timeout=0) as lisc:
+                    thread = Process(target=lisc.do_inventory,
+                                     args=(self.inventory_queue, ))
+                    thread.start()
+                    # thread.join()
+
+            if inventory:
+                try:
+                    # returns a deque object with information
+                    msgs = self.inventory_queue.get_nowait()
+                    if not isinstance(msgs, deque):
+                        raise ValueError(
+                            &#34;Message from queue is not ConnPackage obj&#34;)
+
+                    if len(msgs) &gt; 0:
+
+                        info_type, mode, msg = msgs
+                        if info_type == InfoType.KILL:
+                            self.send_mode(mode, &#34;Done with Inventory&#34;)
+                            inventory = False
+
+                        if info_type == InfoType.SWITCH:
+
+                            if mode == ConnMode.STATUS:
+                                pos, addr, status = msg
+                                print(&#39;status&#39;, status.hex())
+
+                                status = Status(status)
+                                voltage = status.voltage
+                                temp = status.temp
+
+                                msg = &#34;{}V, {}C&#34;.format(voltage, temp)
+                                self.set_window_title(msg=msg)
+
+                            if mode == ConnMode.MAIN:
+                                pos, addr = msg
+                                self.update_anticipated(num=int(pos))
+                                msg = &#34;--&gt; {}: [{}]&#34;.format(pos, addr)
+                                self.send_mode(mode, msg)
+
+                        if info_type == InfoType.OTHER:
+                            self.send_mode(mode, msg)
+
+                except Exception:
+                    pass
+
+        self.window.close()
+
+    # def parse_type(self, msg):
+    #     #print(&#39;msg: &#39;, msg)
+    #     latest = msg[-1]
+    #     infotype, mode, payload = latest
+    #     #print(&#34;payload: &#34;, payload)
+
+    #     if infotype == InfoType.OTHER:
+    #         self.send_mode(mode, payload)
+
+    #     elif infotype == InfoType.SWITCH:
+    #         if not isinstance(payload, bytes):
+    #             print(&#34;value: {}, type: {}&#34;.format(payload, type(payload)))
+    #             raise ConnPackageSwitchValueError()
+    #         # add length of list where InfoType is SWITCH to msg
+    #         # at this point if InfoType is for switch, msg WILL be tuple
+
+    #         num_switch_msgs = 0
+    #         for m in msg:
+    #             print(&#34;Message: &#34;, m)
+    #             if m[0] == InfoType.SWITCH:
+    #                 num_switch_msgs += 1
+    #         pos, addr = payload
+    #         # display switches to canvas
+    #         main_canvas_msg = &#34;[{}] {}&#34;.format(pos, addr)
+
+    #         # update anticipated amount based on number of switch messages recieved
+    #         self.update_anticipated(num=num_switch_msgs)
+
+    #         self.send_mode(mode, main_canvas_msg)
+
+    #     else:
+    #         raise NotValidInfoType
+
+    def send_mode(self, mode, payload):
+        if mode == ConnMode.DEBUG:
+            self.send_to_debug(msg=payload, clear=False)
+        elif mode == ConnMode.MAIN:
+            self.send_to_main(msg=payload, clear=False)
+
+        elif mode == ConnMode.STATUS:
+            #@TODO
+            pass
+        else:
+            raise TypeError(&#34;Not a valid enum state&#34;)</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="shooting-verification-gui.gui.SimpleShootingInterface.inventory_queue"><code class="name">var <span class="ident">inventory_queue</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="shooting-verification-gui.gui.SimpleShootingInterface.lo"><code class="name">var <span class="ident">lo</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="shooting-verification-gui.gui.SimpleShootingInterface.loop"><code class="name flex">
+<span>def <span class="ident">loop</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def loop(self):
+    inventory = False
+    vol_temp_window = None
+
+    while True:
+        event, values = self.window.read(timeout=c.ssi(&#39;async_timeout&#39;))
+        if event != &#39;__TIMEOUT__&#39;:
+            print(event, values)
+        if event in (None, &#39;Quit&#39;):
+            break
+
+        if &#39;Change Expected Amount&#39; in event:
+            cur_val = self.window[&#39;label_expected_amount&#39;].DisplayText
+            layout = [[
+                sg.Input(&#34;{}&#34;.format(cur_val), focus=True, key=&#39;input_box&#39;)
+            ], [sg.Button(&#39;Exit&#39;, bind_return_key=True)]]
+            win2 = sg.Window(&#34;Edit Expected Amount&#34;)
+
+            while True:
+                ev2, vals2 = win2.read()
+                if ev2 is None or ev2 == &#39;Exit&#39;:
+                    print(ev2, vals2)
+
+                    self.window[&#39;label_expected_amount&#39;](str(
+                        vals2[&#39;input_box&#39;]))
+                    win2.close()
+                    break
+
+        if &#39;Run&#39; == values[&#39;main_menu&#39;]:
+            simulator = Simulator(self)
+            simulator.run()
+
+        if &#39;button_inventory&#39; in event:
+            inventory = True
+            self.set_window_title()
+            with LISC(port=&#39;/dev/ttyS6&#39;, baudrate=9600, timeout=0) as lisc:
+                thread = Process(target=lisc.do_inventory,
+                                 args=(self.inventory_queue, ))
+                thread.start()
+                # thread.join()
+
+        if inventory:
+            try:
+                # returns a deque object with information
+                msgs = self.inventory_queue.get_nowait()
+                if not isinstance(msgs, deque):
+                    raise ValueError(
+                        &#34;Message from queue is not ConnPackage obj&#34;)
+
+                if len(msgs) &gt; 0:
+
+                    info_type, mode, msg = msgs
+                    if info_type == InfoType.KILL:
+                        self.send_mode(mode, &#34;Done with Inventory&#34;)
+                        inventory = False
+
+                    if info_type == InfoType.SWITCH:
+
+                        if mode == ConnMode.STATUS:
+                            pos, addr, status = msg
+                            print(&#39;status&#39;, status.hex())
+
+                            status = Status(status)
+                            voltage = status.voltage
+                            temp = status.temp
+
+                            msg = &#34;{}V, {}C&#34;.format(voltage, temp)
+                            self.set_window_title(msg=msg)
+
+                        if mode == ConnMode.MAIN:
+                            pos, addr = msg
+                            self.update_anticipated(num=int(pos))
+                            msg = &#34;--&gt; {}: [{}]&#34;.format(pos, addr)
+                            self.send_mode(mode, msg)
+
+                    if info_type == InfoType.OTHER:
+                        self.send_mode(mode, msg)
+
+            except Exception:
+                pass
+
+    self.window.close()</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.gui.SimpleShootingInterface.send_mode"><code class="name flex">
+<span>def <span class="ident">send_mode</span></span>(<span>self, mode, payload)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send_mode(self, mode, payload):
+    if mode == ConnMode.DEBUG:
+        self.send_to_debug(msg=payload, clear=False)
+    elif mode == ConnMode.MAIN:
+        self.send_to_main(msg=payload, clear=False)
+
+    elif mode == ConnMode.STATUS:
+        #@TODO
+        pass
+    else:
+        raise TypeError(&#34;Not a valid enum state&#34;)</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.gui.SimpleShootingInterface.send_to_debug"><code class="name flex">
+<span>def <span class="ident">send_to_debug</span></span>(<span>self, msg, clear=False)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send_to_debug(self, msg, clear=False):
+    widget = self.window[&#39;multiline_default_output&#39;]
+    self.send_to_multiline(widget=widget, msg=msg, clear=clear)</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.gui.SimpleShootingInterface.send_to_main"><code class="name flex">
+<span>def <span class="ident">send_to_main</span></span>(<span>self, msg, clear=False)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send_to_main(self, msg, clear=False):
+    widget = self.window[&#39;multiline_switch_canvas&#39;]
+    self.send_to_multiline(widget=widget, msg=msg, clear=clear)</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.gui.SimpleShootingInterface.send_to_multiline"><code class="name flex">
+<span>def <span class="ident">send_to_multiline</span></span>(<span>self, widget, msg, clear=False)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send_to_multiline(self, widget, msg, clear=False):
+    if clear:
+        widget(msg)
+    else:
+        current = widget.get()
+        new_string = current + str(msg)
+        widget(new_string)</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.gui.SimpleShootingInterface.set_window_title"><code class="name flex">
+<span>def <span class="ident">set_window_title</span></span>(<span>self, msg='')</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def set_window_title(self, msg=&#34;&#34;):
+    msg = &#34;SSI v{} {}&#34;.format(c.ssi(&#34;version&#34;), msg)
+    self.window.TKroot.title(msg)</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.gui.SimpleShootingInterface.update_anticipated"><code class="name flex">
+<span>def <span class="ident">update_anticipated</span></span>(<span>self, num)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update_anticipated(self, num):
+    w = self.window[&#39;label_anticipated_amount&#39;]
+    w(num)</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.gui.SimpleShootingInterface.write_element"><code class="name flex">
+<span>def <span class="ident">write_element</span></span>(<span>self, window, key, msg, append=True)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def write_element(self, window, key, msg, append=True):
+
+    ele = window.Element(key)
+    try:
+        ele.update(msg + &#39;\n&#39;, append=append)
+    except Exception:
+        print(&#34;label here&#34;, msg, ele)
+        ele.DisplayText = msg</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="shooting-verification-gui" href="index.html">shooting-verification-gui</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="shooting-verification-gui.gui.SimpleShootingInterface" href="#shooting-verification-gui.gui.SimpleShootingInterface">SimpleShootingInterface</a></code></h4>
+<ul class="two-column">
+<li><code><a title="shooting-verification-gui.gui.SimpleShootingInterface.inventory_queue" href="#shooting-verification-gui.gui.SimpleShootingInterface.inventory_queue">inventory_queue</a></code></li>
+<li><code><a title="shooting-verification-gui.gui.SimpleShootingInterface.lo" href="#shooting-verification-gui.gui.SimpleShootingInterface.lo">lo</a></code></li>
+<li><code><a title="shooting-verification-gui.gui.SimpleShootingInterface.loop" href="#shooting-verification-gui.gui.SimpleShootingInterface.loop">loop</a></code></li>
+<li><code><a title="shooting-verification-gui.gui.SimpleShootingInterface.send_mode" href="#shooting-verification-gui.gui.SimpleShootingInterface.send_mode">send_mode</a></code></li>
+<li><code><a title="shooting-verification-gui.gui.SimpleShootingInterface.send_to_debug" href="#shooting-verification-gui.gui.SimpleShootingInterface.send_to_debug">send_to_debug</a></code></li>
+<li><code><a title="shooting-verification-gui.gui.SimpleShootingInterface.send_to_main" href="#shooting-verification-gui.gui.SimpleShootingInterface.send_to_main">send_to_main</a></code></li>
+<li><code><a title="shooting-verification-gui.gui.SimpleShootingInterface.send_to_multiline" href="#shooting-verification-gui.gui.SimpleShootingInterface.send_to_multiline">send_to_multiline</a></code></li>
+<li><code><a title="shooting-verification-gui.gui.SimpleShootingInterface.set_window_title" href="#shooting-verification-gui.gui.SimpleShootingInterface.set_window_title">set_window_title</a></code></li>
+<li><code><a title="shooting-verification-gui.gui.SimpleShootingInterface.update_anticipated" href="#shooting-verification-gui.gui.SimpleShootingInterface.update_anticipated">update_anticipated</a></code></li>
+<li><code><a title="shooting-verification-gui.gui.SimpleShootingInterface.write_element" href="#shooting-verification-gui.gui.SimpleShootingInterface.write_element">write_element</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

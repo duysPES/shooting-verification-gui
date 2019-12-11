@@ -18,8 +18,22 @@ sg.change_look_and_feel('GreenTan')
 
 
 class SimpleShootingInterface:
+    """
+    Main Program handler. Controls GUI that users will be using
+    to inventory addressable switches, and running switch simulator
+    """
+
     lo = LayOuts()
+    """
+    variable to helper class that stores all layouts for PySimpleGui
+    """
+
     inventory_queue = Queue()
+    """
+    thread-safe *half-duplex* channel that is used when moving
+    entire inventory process on a seperate thread. This allows for communication
+    back to main thread.
+    """
 
     def __init__(self):
         self.layout = self.lo.main_layout()
@@ -33,6 +47,21 @@ class SimpleShootingInterface:
         self.set_window_title()
 
     def send_to_multiline(self, widget, msg, clear=False):
+        """
+        ```
+        input: sg.Element, str, bool
+        return: None
+        ```
+        helper method to update a tk multiline element
+
+        ```python
+        my_widget = window['label']
+        send_to_multiline(my_widget, msg="hello, world", clear=False)
+
+        print(my_widget.DisplayText) # "hello, world"
+        ```
+        """
+
         if clear:
             widget(msg)
         else:
@@ -41,6 +70,15 @@ class SimpleShootingInterface:
             widget(new_string)
 
     def write_element(self, window, key, msg, append=True):
+        """
+        ```
+        input: sg.Window, str, str, bool
+        return: None
+        ```
+        same functionality as send_to_multiline except you can 
+        specifiy sg.Window object.
+
+        """
 
         ele = window.Element(key)
         try:
@@ -50,22 +88,66 @@ class SimpleShootingInterface:
             ele.DisplayText = msg
 
     def send_to_main(self, msg, clear=False):
+        """
+        ```
+        input: str, bool
+        return: None
+        ```
+        helper method to update main multiline element in 
+        GUI, where Switch information is posted.
+        """
         widget = self.window['multiline_switch_canvas']
         self.send_to_multiline(widget=widget, msg=msg, clear=clear)
 
     def send_to_debug(self, msg, clear=False):
+        """
+        ```
+        input: str, bool
+        return: None
+        ```
+        helper method to update multiline that serves as debug output.
+
+        """
         widget = self.window['multiline_default_output']
         self.send_to_multiline(widget=widget, msg=msg, clear=clear)
 
     def update_anticipated(self, num):
+        """        
+        ```
+        input: str
+        return: None
+        ```
+        helper method to update number of anticipated switches
+
+        """
         w = self.window['label_anticipated_amount']
         w(num)
 
     def set_window_title(self, msg=""):
+        """
+        ```
+        input: str
+        return: None
+        ```
+        Set window title.
+
+        """
         msg = "SSI v{} {}".format(c.ssi("version"), msg)
         self.window.TKroot.title(msg)
 
     def loop(self):
+        """
+        **main program loop, this is where ALL 
+        the magic happens.**
+
+        ```python
+        gui.loop()
+        # things crash
+        # things burn
+        # things take over the world.
+        ```
+        """
+
         inventory = False
         vol_temp_window = None
 
@@ -125,14 +207,7 @@ class SimpleShootingInterface:
 
                             if mode == ConnMode.STATUS:
                                 pos, addr, status = msg
-                                print('status', status.hex())
-
-                                status = Status(status)
-                                voltage = status.voltage
-                                temp = status.temp
-
-                                msg = "{}V, {}C".format(voltage, temp)
-                                self.set_window_title(msg=msg)
+                                self.send_mode(mode, status)
 
                             if mode == ConnMode.MAIN:
                                 pos, addr = msg
@@ -148,53 +223,32 @@ class SimpleShootingInterface:
 
         self.window.close()
 
-    # def parse_type(self, msg):
-    #     #print('msg: ', msg)
-    #     latest = msg[-1]
-    #     infotype, mode, payload = latest
-    #     #print("payload: ", payload)
-
-    #     if infotype == InfoType.OTHER:
-    #         self.send_mode(mode, payload)
-
-    #     elif infotype == InfoType.SWITCH:
-    #         if not isinstance(payload, bytes):
-    #             print("value: {}, type: {}".format(payload, type(payload)))
-    #             raise ConnPackageSwitchValueError()
-    #         # add length of list where InfoType is SWITCH to msg
-    #         # at this point if InfoType is for switch, msg WILL be tuple
-
-    #         num_switch_msgs = 0
-    #         for m in msg:
-    #             print("Message: ", m)
-    #             if m[0] == InfoType.SWITCH:
-    #                 num_switch_msgs += 1
-    #         pos, addr = payload
-    #         # display switches to canvas
-    #         main_canvas_msg = "[{}] {}".format(pos, addr)
-
-    #         # update anticipated amount based on number of switch messages recieved
-    #         self.update_anticipated(num=num_switch_msgs)
-
-    #         self.send_mode(mode, main_canvas_msg)
-
-    #     else:
-    #         raise NotValidInfoType
-
     def send_mode(self, mode, payload):
+        """
+        ```
+        input: ConnMode, PyObj
+        return: None
+        ```
+
+        a proxy method that takes incoming data from 
+        the queue object, and updates applicable elements
+        within the main gui based on Connection Mode and InfoTypes
+        found in packets.
+        """
+
         if mode == ConnMode.DEBUG:
             self.send_to_debug(msg=payload, clear=False)
         elif mode == ConnMode.MAIN:
             self.send_to_main(msg=payload, clear=False)
 
         elif mode == ConnMode.STATUS:
-            #@TODO
-            pass
+            status = Status(status)
+            voltage = status.voltage
+            temp = status.temp
+
+            msg = "{}V, {}C".format(voltage, temp)
+            self.set_window_title(msg=msg)
         else:
             raise TypeError("Not a valid enum state")
 
 
-if __name__ == "__main__":
-
-    gui = SimpleShootingInterface()
-    gui.loop()

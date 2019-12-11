@@ -1,6 +1,6 @@
 import sys
 import os
-sys.path.append(os.getcwd() + "/../")
+# sys.path.append(os.getcwd() + "/../")
 
 from pysrc.errors import NotValidSwitchObj, SwitchDoesNotExist
 import struct
@@ -70,18 +70,45 @@ class SwitchManager:
 
 class Switch:
     def __init__(self, position, raw):
+        """
+        Abstraction structure for representation of addressable switch
+        """
         self.position = position
-        # self.raw = list(struct.unpack("B" * len(raw), raw))
+        """
+        intended to represent the position of the switch within the string
+        """
+
         self.raw = raw
+        """
+        raw `bytes` representation of an incoming reponse from lisc
+        """
 
         self.address = self.hex(self.raw[:3])
+        """
+        hex string representation of the address of the switch
+        """
+
         self.package = self.raw[3:-1]
+        """
+        raw bytes of the payload isolated from the raw respons
+        """
 
     @property
     def raw_address(self):
+        """
+        returns address, but in bytes form
+        """
         return self.raw[:3]
 
     def update(self, raw):
+        """
+        ```python
+        input: bytes
+        return: None
+        ```
+
+        updates internal state with new response from switch
+        """
         if not isinstance(raw, bytes):
             raise ValueError(
                 "updating internal switch body, must be bytes instance")
@@ -92,16 +119,45 @@ class Switch:
         self.package = bytes(self.raw[3:-1])
 
     def hex(self, collection):
+        """
+        ```python
+        input: Iterable
+        return: str
+        ```
+        returns a hex-string representation of supplied collection
+
+        ```python
+        raw = b"\\xff\\x1a"
+        pritn(hex(raw)) # "0xff1a"
+        ```
+        """
         return "0x" + "".join(["{:x}".format(i).zfill(2) for i in collection])
 
     @staticmethod
     def to_int(msg):
+        """
+        ```python
+        input: bytes
+        return: list[int]
+        ```
+
+        converts a bytes object into a list of ints
+        """
         if not isinstance(msg, bytes):
             return msg
 
         return list(struct.unpack("B" * len(msg), msg))
 
     def gen_package(self, msg):
+        """
+        ```python
+        input: bytes
+        return: bytes
+        ```
+
+        Generates a complete package that a `real` addressable switch would be able
+        to consume, the supplied `msg` must be a valid command.
+        """
         raw = bytes(self.raw[:3])
         if not isinstance(msg, bytes):
             msg = bytes([msg])
@@ -118,33 +174,34 @@ __addr = b'\xff\x1a#\x15\xd3'
 __status = b'\x0b\xd0\xb65\x1c\x05\x01\x00\x00(h'
 
 
-def test_to_int_from_bytes():
+
+def __test_to_int_from_bytes():
     actual = [11, 208, 182, 53, 28, 5, 1, 0, 0, 40, 104]
     assert Switch.to_int(__status) == actual
 
 
-def test_switch_update():
+def __test_switch_update():
     switch = Switch(position=1, raw=__addr)
     switch.update(raw=__status)
 
     assert switch.package == b'5\x1c\x05\x01\x00\x00('
 
 
-def test_addr_is_bytes():
+def __test_addr_is_bytes():
     assert isinstance(__addr, bytes) == True
 
 
-def test_switch_address():
+def __test_switch_address():
     switch = Switch(position=1, raw=__addr)
     assert switch.address == "0xff1a23"
 
 
-def test_switch_package():
+def __test_switch_package():
     switch = Switch(position=1, raw=__addr)
     assert bytes(switch.package) == b"\x15"
 
 
-def test_switch_chksum():
+def __test_switch_chksum():
     switch = Switch(position=1, raw=__addr)
     chksum = 0
     for byte in switch.raw[:-1]:
@@ -153,14 +210,14 @@ def test_switch_chksum():
     assert chksum == switch.raw[-1]
 
 
-def test_manager_exists():
+def __test_manager_exists():
     manager = SwitchManager()
     switch = Switch(position=1, raw=__addr)
     manager.add(switch)
     assert manager.switch_exists(address=switch.address) == True
 
 
-def test_manager_not_exists():
+def __test_manager_not_exists():
     manager = SwitchManager()
     switch = Switch(position=1, raw=__addr)
     manager.add(switch)
@@ -168,7 +225,7 @@ def test_manager_not_exists():
     assert not manager.switch_exists(address=switch.address) == True
 
 
-def test_switch_package_gen():
+def __test_switch_package_gen():
     switch = Switch(position=1, raw=__addr)
     cmd = b"\x1e"
     chksum = 0

@@ -1,0 +1,781 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.2" />
+<title>shooting-verification-gui.pysrc.switch API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>shooting-verification-gui.pysrc.switch</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import sys
+import os
+sys.path.append(os.getcwd() + &#34;/../&#34;)
+
+from pysrc.errors import NotValidSwitchObj, SwitchDoesNotExist
+import struct
+
+# volts: u8,
+# temp: u8,
+# detd: u8,
+# perror: u8,
+# cerror: u8,
+# nfire: u8,
+# flags: u8,
+SWITCH_STATUS = [
+    &#34;VOLT: {}V\n&#34;, &#34;TEMP: {}C\n&#34;, &#34;DETD: {}\n&#34;, &#34;PERROR: {}\n&#34;, &#34;CERROR: {}\n&#34;,
+    &#34;NFIRE: {}\n&#34;, &#34;FLAGS: 0x{:02x}\n&#34;
+]
+
+
+class SwitchManager:
+    switches = dict()
+    __addr_list = list()
+
+    def add(self, sw):
+        if not self.is_switch_obj(sw):
+            raise NotValidSwitchObj
+
+        if self.switch_exists(sw.address):
+            print(&#34;Switch already exists.&#34;)
+            return
+
+        self.switches[sw.address] = sw
+        self.__addr_list.append(sw.address)
+
+    def remove(self, sw):
+        try:
+            self.switches.pop(sw.address)
+            self.__addr_list.remove(sw.address)
+        except SwitchDoesNotExist:
+            print(&#34;Unable to remove a switch that doesn&#39;t exist.&#34;)
+
+    @property
+    def latest_switch(self):
+        return self.__addr_list[-1]
+
+    def is_switch_obj(self, obj):
+        return isinstance(obj, Switch)
+
+    def switch_exists(self, address):
+        found = True
+        for addr in self.switches.keys():
+            if address == addr:
+                return found
+        return not found
+
+    def get(self, switch):
+        for switch_obj in self.switches.values():
+            if switch.address == switch_obj.address:
+                return switch
+
+    def update(self, switch, msg):
+        switch = self.get(switch)
+        switch.update(msg)
+
+    @property
+    def num(self):
+        return len(self.switches)
+
+
+class Switch:
+    def __init__(self, position, raw):
+        self.position = position
+        # self.raw = list(struct.unpack(&#34;B&#34; * len(raw), raw))
+        self.raw = raw
+
+        self.address = self.hex(self.raw[:3])
+        self.package = self.raw[3:-1]
+
+    @property
+    def raw_address(self):
+        return self.raw[:3]
+
+    def update(self, raw):
+        if not isinstance(raw, bytes):
+            raise ValueError(
+                &#34;updating internal switch body, must be bytes instance&#34;)
+
+        # self.raw = list(struct.unpack(&#34;B&#34; * len(raw), raw))
+        self.raw = raw
+        self.address = self.hex(self.raw[:3])
+        self.package = bytes(self.raw[3:-1])
+
+    def hex(self, collection):
+        return &#34;0x&#34; + &#34;&#34;.join([&#34;{:x}&#34;.format(i).zfill(2) for i in collection])
+
+    @staticmethod
+    def to_int(msg):
+        if not isinstance(msg, bytes):
+            return msg
+
+        return list(struct.unpack(&#34;B&#34; * len(msg), msg))
+
+    def gen_package(self, msg):
+        raw = bytes(self.raw[:3])
+        if not isinstance(msg, bytes):
+            msg = bytes([msg])
+
+        chksum = 0
+        for i in raw + msg:
+            chksum ^= i
+
+        return raw + msg + bytes([chksum])
+
+
+######## TEST MODULES ###########
+__addr = b&#39;\xff\x1a#\x15\xd3&#39;
+__status = b&#39;\x0b\xd0\xb65\x1c\x05\x01\x00\x00(h&#39;
+
+
+def test_to_int_from_bytes():
+    actual = [11, 208, 182, 53, 28, 5, 1, 0, 0, 40, 104]
+    assert Switch.to_int(__status) == actual
+
+
+def test_switch_update():
+    switch = Switch(position=1, raw=__addr)
+    switch.update(raw=__status)
+
+    assert switch.package == b&#39;5\x1c\x05\x01\x00\x00(&#39;
+
+
+def test_addr_is_bytes():
+    assert isinstance(__addr, bytes) == True
+
+
+def test_switch_address():
+    switch = Switch(position=1, raw=__addr)
+    assert switch.address == &#34;0xff1a23&#34;
+
+
+def test_switch_package():
+    switch = Switch(position=1, raw=__addr)
+    assert bytes(switch.package) == b&#34;\x15&#34;
+
+
+def test_switch_chksum():
+    switch = Switch(position=1, raw=__addr)
+    chksum = 0
+    for byte in switch.raw[:-1]:
+        chksum ^= byte
+
+    assert chksum == switch.raw[-1]
+
+
+def test_manager_exists():
+    manager = SwitchManager()
+    switch = Switch(position=1, raw=__addr)
+    manager.add(switch)
+    assert manager.switch_exists(address=switch.address) == True
+
+
+def test_manager_not_exists():
+    manager = SwitchManager()
+    switch = Switch(position=1, raw=__addr)
+    manager.add(switch)
+    manager.remove(switch)
+    assert not manager.switch_exists(address=switch.address) == True
+
+
+def test_switch_package_gen():
+    switch = Switch(position=1, raw=__addr)
+    cmd = b&#34;\x1e&#34;
+    chksum = 0
+    for i in __addr[:3] + cmd:
+        chksum ^= i
+
+    chksum = bytes([chksum])
+    packet = __addr[:3] + cmd + chksum
+
+    assert packet == switch.gen_package(msg=cmd)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="shooting-verification-gui.pysrc.switch.test_addr_is_bytes"><code class="name flex">
+<span>def <span class="ident">test_addr_is_bytes</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_addr_is_bytes():
+    assert isinstance(__addr, bytes) == True</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.test_manager_exists"><code class="name flex">
+<span>def <span class="ident">test_manager_exists</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_manager_exists():
+    manager = SwitchManager()
+    switch = Switch(position=1, raw=__addr)
+    manager.add(switch)
+    assert manager.switch_exists(address=switch.address) == True</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.test_manager_not_exists"><code class="name flex">
+<span>def <span class="ident">test_manager_not_exists</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_manager_not_exists():
+    manager = SwitchManager()
+    switch = Switch(position=1, raw=__addr)
+    manager.add(switch)
+    manager.remove(switch)
+    assert not manager.switch_exists(address=switch.address) == True</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.test_switch_address"><code class="name flex">
+<span>def <span class="ident">test_switch_address</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_switch_address():
+    switch = Switch(position=1, raw=__addr)
+    assert switch.address == &#34;0xff1a23&#34;</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.test_switch_chksum"><code class="name flex">
+<span>def <span class="ident">test_switch_chksum</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_switch_chksum():
+    switch = Switch(position=1, raw=__addr)
+    chksum = 0
+    for byte in switch.raw[:-1]:
+        chksum ^= byte
+
+    assert chksum == switch.raw[-1]</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.test_switch_package"><code class="name flex">
+<span>def <span class="ident">test_switch_package</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_switch_package():
+    switch = Switch(position=1, raw=__addr)
+    assert bytes(switch.package) == b&#34;\x15&#34;</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.test_switch_package_gen"><code class="name flex">
+<span>def <span class="ident">test_switch_package_gen</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_switch_package_gen():
+    switch = Switch(position=1, raw=__addr)
+    cmd = b&#34;\x1e&#34;
+    chksum = 0
+    for i in __addr[:3] + cmd:
+        chksum ^= i
+
+    chksum = bytes([chksum])
+    packet = __addr[:3] + cmd + chksum
+
+    assert packet == switch.gen_package(msg=cmd)</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.test_switch_update"><code class="name flex">
+<span>def <span class="ident">test_switch_update</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_switch_update():
+    switch = Switch(position=1, raw=__addr)
+    switch.update(raw=__status)
+
+    assert switch.package == b&#39;5\x1c\x05\x01\x00\x00(&#39;</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.test_to_int_from_bytes"><code class="name flex">
+<span>def <span class="ident">test_to_int_from_bytes</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_to_int_from_bytes():
+    actual = [11, 208, 182, 53, 28, 5, 1, 0, 0, 40, 104]
+    assert Switch.to_int(__status) == actual</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="shooting-verification-gui.pysrc.switch.Switch"><code class="flex name class">
+<span>class <span class="ident">Switch</span></span>
+<span>(</span><span>position, raw)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Switch:
+    def __init__(self, position, raw):
+        self.position = position
+        # self.raw = list(struct.unpack(&#34;B&#34; * len(raw), raw))
+        self.raw = raw
+
+        self.address = self.hex(self.raw[:3])
+        self.package = self.raw[3:-1]
+
+    @property
+    def raw_address(self):
+        return self.raw[:3]
+
+    def update(self, raw):
+        if not isinstance(raw, bytes):
+            raise ValueError(
+                &#34;updating internal switch body, must be bytes instance&#34;)
+
+        # self.raw = list(struct.unpack(&#34;B&#34; * len(raw), raw))
+        self.raw = raw
+        self.address = self.hex(self.raw[:3])
+        self.package = bytes(self.raw[3:-1])
+
+    def hex(self, collection):
+        return &#34;0x&#34; + &#34;&#34;.join([&#34;{:x}&#34;.format(i).zfill(2) for i in collection])
+
+    @staticmethod
+    def to_int(msg):
+        if not isinstance(msg, bytes):
+            return msg
+
+        return list(struct.unpack(&#34;B&#34; * len(msg), msg))
+
+    def gen_package(self, msg):
+        raw = bytes(self.raw[:3])
+        if not isinstance(msg, bytes):
+            msg = bytes([msg])
+
+        chksum = 0
+        for i in raw + msg:
+            chksum ^= i
+
+        return raw + msg + bytes([chksum])</code></pre>
+</details>
+<h3>Static methods</h3>
+<dl>
+<dt id="shooting-verification-gui.pysrc.switch.Switch.to_int"><code class="name flex">
+<span>def <span class="ident">to_int</span></span>(<span>msg)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@staticmethod
+def to_int(msg):
+    if not isinstance(msg, bytes):
+        return msg
+
+    return list(struct.unpack(&#34;B&#34; * len(msg), msg))</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="shooting-verification-gui.pysrc.switch.Switch.raw_address"><code class="name">var <span class="ident">raw_address</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def raw_address(self):
+    return self.raw[:3]</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="shooting-verification-gui.pysrc.switch.Switch.gen_package"><code class="name flex">
+<span>def <span class="ident">gen_package</span></span>(<span>self, msg)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def gen_package(self, msg):
+    raw = bytes(self.raw[:3])
+    if not isinstance(msg, bytes):
+        msg = bytes([msg])
+
+    chksum = 0
+    for i in raw + msg:
+        chksum ^= i
+
+    return raw + msg + bytes([chksum])</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.Switch.hex"><code class="name flex">
+<span>def <span class="ident">hex</span></span>(<span>self, collection)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def hex(self, collection):
+    return &#34;0x&#34; + &#34;&#34;.join([&#34;{:x}&#34;.format(i).zfill(2) for i in collection])</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.Switch.update"><code class="name flex">
+<span>def <span class="ident">update</span></span>(<span>self, raw)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update(self, raw):
+    if not isinstance(raw, bytes):
+        raise ValueError(
+            &#34;updating internal switch body, must be bytes instance&#34;)
+
+    # self.raw = list(struct.unpack(&#34;B&#34; * len(raw), raw))
+    self.raw = raw
+    self.address = self.hex(self.raw[:3])
+    self.package = bytes(self.raw[3:-1])</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.SwitchManager"><code class="flex name class">
+<span>class <span class="ident">SwitchManager</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class SwitchManager:
+    switches = dict()
+    __addr_list = list()
+
+    def add(self, sw):
+        if not self.is_switch_obj(sw):
+            raise NotValidSwitchObj
+
+        if self.switch_exists(sw.address):
+            print(&#34;Switch already exists.&#34;)
+            return
+
+        self.switches[sw.address] = sw
+        self.__addr_list.append(sw.address)
+
+    def remove(self, sw):
+        try:
+            self.switches.pop(sw.address)
+            self.__addr_list.remove(sw.address)
+        except SwitchDoesNotExist:
+            print(&#34;Unable to remove a switch that doesn&#39;t exist.&#34;)
+
+    @property
+    def latest_switch(self):
+        return self.__addr_list[-1]
+
+    def is_switch_obj(self, obj):
+        return isinstance(obj, Switch)
+
+    def switch_exists(self, address):
+        found = True
+        for addr in self.switches.keys():
+            if address == addr:
+                return found
+        return not found
+
+    def get(self, switch):
+        for switch_obj in self.switches.values():
+            if switch.address == switch_obj.address:
+                return switch
+
+    def update(self, switch, msg):
+        switch = self.get(switch)
+        switch.update(msg)
+
+    @property
+    def num(self):
+        return len(self.switches)</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="shooting-verification-gui.pysrc.switch.SwitchManager.switches"><code class="name">var <span class="ident">switches</span></code></dt>
+<dd>
+<section class="desc"><p>dict() -&gt; new empty dictionary
+dict(mapping) -&gt; new dictionary initialized from a mapping object's
+(key, value) pairs
+dict(iterable) -&gt; new dictionary initialized as if via:
+d = {}
+for k, v in iterable:
+d[k] = v
+dict(**kwargs) -&gt; new dictionary initialized with the name=value pairs
+in the keyword argument list.
+For example:
+dict(one=1, two=2)</p></section>
+</dd>
+</dl>
+<h3>Instance variables</h3>
+<dl>
+<dt id="shooting-verification-gui.pysrc.switch.SwitchManager.latest_switch"><code class="name">var <span class="ident">latest_switch</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def latest_switch(self):
+    return self.__addr_list[-1]</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.SwitchManager.num"><code class="name">var <span class="ident">num</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def num(self):
+    return len(self.switches)</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="shooting-verification-gui.pysrc.switch.SwitchManager.add"><code class="name flex">
+<span>def <span class="ident">add</span></span>(<span>self, sw)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def add(self, sw):
+    if not self.is_switch_obj(sw):
+        raise NotValidSwitchObj
+
+    if self.switch_exists(sw.address):
+        print(&#34;Switch already exists.&#34;)
+        return
+
+    self.switches[sw.address] = sw
+    self.__addr_list.append(sw.address)</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.SwitchManager.get"><code class="name flex">
+<span>def <span class="ident">get</span></span>(<span>self, switch)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def get(self, switch):
+    for switch_obj in self.switches.values():
+        if switch.address == switch_obj.address:
+            return switch</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.SwitchManager.is_switch_obj"><code class="name flex">
+<span>def <span class="ident">is_switch_obj</span></span>(<span>self, obj)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def is_switch_obj(self, obj):
+    return isinstance(obj, Switch)</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.SwitchManager.remove"><code class="name flex">
+<span>def <span class="ident">remove</span></span>(<span>self, sw)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def remove(self, sw):
+    try:
+        self.switches.pop(sw.address)
+        self.__addr_list.remove(sw.address)
+    except SwitchDoesNotExist:
+        print(&#34;Unable to remove a switch that doesn&#39;t exist.&#34;)</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.SwitchManager.switch_exists"><code class="name flex">
+<span>def <span class="ident">switch_exists</span></span>(<span>self, address)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def switch_exists(self, address):
+    found = True
+    for addr in self.switches.keys():
+        if address == addr:
+            return found
+    return not found</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.switch.SwitchManager.update"><code class="name flex">
+<span>def <span class="ident">update</span></span>(<span>self, switch, msg)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def update(self, switch, msg):
+    switch = self.get(switch)
+    switch.update(msg)</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="shooting-verification-gui.pysrc" href="index.html">shooting-verification-gui.pysrc</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="shooting-verification-gui.pysrc.switch.test_addr_is_bytes" href="#shooting-verification-gui.pysrc.switch.test_addr_is_bytes">test_addr_is_bytes</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.test_manager_exists" href="#shooting-verification-gui.pysrc.switch.test_manager_exists">test_manager_exists</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.test_manager_not_exists" href="#shooting-verification-gui.pysrc.switch.test_manager_not_exists">test_manager_not_exists</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.test_switch_address" href="#shooting-verification-gui.pysrc.switch.test_switch_address">test_switch_address</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.test_switch_chksum" href="#shooting-verification-gui.pysrc.switch.test_switch_chksum">test_switch_chksum</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.test_switch_package" href="#shooting-verification-gui.pysrc.switch.test_switch_package">test_switch_package</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.test_switch_package_gen" href="#shooting-verification-gui.pysrc.switch.test_switch_package_gen">test_switch_package_gen</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.test_switch_update" href="#shooting-verification-gui.pysrc.switch.test_switch_update">test_switch_update</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.test_to_int_from_bytes" href="#shooting-verification-gui.pysrc.switch.test_to_int_from_bytes">test_to_int_from_bytes</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="shooting-verification-gui.pysrc.switch.Switch" href="#shooting-verification-gui.pysrc.switch.Switch">Switch</a></code></h4>
+<ul class="">
+<li><code><a title="shooting-verification-gui.pysrc.switch.Switch.gen_package" href="#shooting-verification-gui.pysrc.switch.Switch.gen_package">gen_package</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.Switch.hex" href="#shooting-verification-gui.pysrc.switch.Switch.hex">hex</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.Switch.raw_address" href="#shooting-verification-gui.pysrc.switch.Switch.raw_address">raw_address</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.Switch.to_int" href="#shooting-verification-gui.pysrc.switch.Switch.to_int">to_int</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.Switch.update" href="#shooting-verification-gui.pysrc.switch.Switch.update">update</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="shooting-verification-gui.pysrc.switch.SwitchManager" href="#shooting-verification-gui.pysrc.switch.SwitchManager">SwitchManager</a></code></h4>
+<ul class="two-column">
+<li><code><a title="shooting-verification-gui.pysrc.switch.SwitchManager.add" href="#shooting-verification-gui.pysrc.switch.SwitchManager.add">add</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.SwitchManager.get" href="#shooting-verification-gui.pysrc.switch.SwitchManager.get">get</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.SwitchManager.is_switch_obj" href="#shooting-verification-gui.pysrc.switch.SwitchManager.is_switch_obj">is_switch_obj</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.SwitchManager.latest_switch" href="#shooting-verification-gui.pysrc.switch.SwitchManager.latest_switch">latest_switch</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.SwitchManager.num" href="#shooting-verification-gui.pysrc.switch.SwitchManager.num">num</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.SwitchManager.remove" href="#shooting-verification-gui.pysrc.switch.SwitchManager.remove">remove</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.SwitchManager.switch_exists" href="#shooting-verification-gui.pysrc.switch.SwitchManager.switch_exists">switch_exists</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.SwitchManager.switches" href="#shooting-verification-gui.pysrc.switch.SwitchManager.switches">switches</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.switch.SwitchManager.update" href="#shooting-verification-gui.pysrc.switch.SwitchManager.update">update</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

@@ -1,0 +1,647 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.2" />
+<title>shooting-verification-gui.pysrc.lisc API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>shooting-verification-gui.pysrc.lisc</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">import serial
+import time
+import multiprocessing as mp
+from pysrc.errors import ChkSumError, IncorrectPayLoad, ErrorCodes
+from pysrc.switch import SwitchManager, Switch
+from pysrc.commands import Commands
+from pysrc.thread import ConnMode, InfoType, ConnPackage
+
+
+class LISC(serial.Serial):
+    incoming_buffer = []
+    switch_manager = SwitchManager()
+    package = ConnPackage()
+
+    def do_inventory(self, sender):
+        # package = ConnPackage(queue)
+        self.package.set_sender(sender)
+        self.package.debug(&#34;Resetting LISC&#34;)
+        self.reset()
+        # response = self.read_serial(lisc)
+        for i in range(3):
+            # listen for broadcast address
+            broadcast_response = self.listen()
+            print(&#34;broadcast &#34;, broadcast_response.hex())
+
+            # internally create a switch obj
+            switch = Switch(position=i + 1, raw=broadcast_response)
+            self.package.switch(switch)  # sending switch contents via sender
+            self.switch_manager.add(switch)
+
+            status_cmd = switch.gen_package(Commands.SendStatus.value)
+            self.package.debug(&#34;Sending command: {}&#34;.format(status_cmd.hex()))
+            response = self.send(status_cmd)
+            self.package.debug(&#34;Response: {}&#34;.format(response.hex()))
+            self.switch_manager.update(switch, response)
+            self.package.switch_status(switch)
+
+            go_inactive = switch.gen_package(Commands.GoInactive.value)
+            self.package.debug(&#34;Sending command: {}&#34;.format(go_inactive.hex()))
+            response = self.send(go_inactive)
+            self.package.debug(&#34;Response: {}&#34;.format(response.hex()))
+
+            self.switch_manager.update(switch, response)
+            # self.package.switch(switch)
+            time.sleep(2)
+
+        self.package.done()
+
+    def send(self, msg, tries=5):
+        &#34;&#34;&#34;
+        Send byte string on connected port, and listen for response
+        returns only the body of packet
+        &#34;&#34;&#34;
+        attempt = 0
+        response = b&#34;&#34;
+        body = None
+        while 1:
+            if attempt == tries:
+                err = \
+                &#34;&#34;&#34;
+                Incorrect response recieved from switch.
+                Last response is: 0x{}
+                &#34;&#34;&#34;.format(response.hex())
+                raise serial.SerialException(err)
+
+            # attempt to write to stream
+            self.write(msg)
+            response = self.listen()
+
+            body = response[3:-1]
+
+            # checking checksum
+            if not self.chksum_ok(msg):
+                attempt += 1
+                self.package.debug(&#34;Chksum incorrect&#34;)
+                continue
+
+            # most likely a successful attempt, if it passes
+            if len(body) &gt; 1:
+                self.package.debug(&#34;Receiving status message&#34;)
+                break
+            elif len(body) == 1:
+                if body == Commands.ACK.value:
+                    self.package.debug(&#34;ACK Recieved&#34;)
+                    break
+                else:
+                    self.package.debug(&#34;NACK recieved trying again..&#34;)
+                    attempt += 1
+                    continue
+            else:
+                attempt += 1
+
+        return response
+
+    def listen(self, timeout=3, tries=5):
+        now = time.time()
+        buf = b&#34;&#34;
+
+        while time.time() - now &lt;= timeout:
+            in_waiting = self.inWaiting()
+            if in_waiting &gt; 0:
+                buf += self.read(in_waiting)
+                now = time.time()
+        return buf
+
+    def bytearray_to_hex(self, arr):
+        return &#34;&#34;.join([i.hex() for i in arr])
+
+    def chksum_ok(self, data):
+        if not isinstance(data, bytes):
+            raise ValueError(&#34;Incoming data must be a bytes&#34;)
+
+        good_data = True
+
+        supplied_chksum = data[-1]
+        calculated_chksum = 0
+
+        for idx in range(len(data) - 1):
+            calculated_chksum ^= data[idx]
+
+        if calculated_chksum != supplied_chksum:
+
+            print(&#34;Checksums do not match: {}/{}&#34;.format(
+                calculated_chksum, supplied_chksum))
+            return not good_data
+
+        return good_data
+
+    def chksum(self, data):
+        &#34;&#34;&#34;
+        return a bytes of data with included checksum
+        &#34;&#34;&#34;
+        chksum = 0
+        if not isinstance(data, bytes):
+            data = bytes([data])
+
+        for element in data:
+            chksum ^= element
+
+        data += bytes([chksum])
+
+        return data
+
+    def delay(self, seconds):
+        start = time.time()
+
+        while time.time() - start &lt;= seconds:
+            continue
+
+    def reset(self):
+        self.write(b&#39;zl&#39;)
+        self.delay(2)
+        self.write(b&#39;zL&#39;)</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="shooting-verification-gui.pysrc.lisc.LISC"><code class="flex name class">
+<span>class <span class="ident">LISC</span></span>
+<span>(</span><span>port=None, baudrate=9600, bytesize=8, parity='N', stopbits=1, timeout=None, xonxoff=False, rtscts=False, write_timeout=None, dsrdtr=False, inter_byte_timeout=None, exclusive=None, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Serial port class POSIX implementation. Serial port configuration is
+done with termios and fcntl. Runs on Linux and many other Un*x like
+systems.</p>
+<p>Initialize comm port object. If a "port" is given, then the port will be
+opened immediately. Otherwise a Serial port object in closed state
+is returned.</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class LISC(serial.Serial):
+    incoming_buffer = []
+    switch_manager = SwitchManager()
+    package = ConnPackage()
+
+    def do_inventory(self, sender):
+        # package = ConnPackage(queue)
+        self.package.set_sender(sender)
+        self.package.debug(&#34;Resetting LISC&#34;)
+        self.reset()
+        # response = self.read_serial(lisc)
+        for i in range(3):
+            # listen for broadcast address
+            broadcast_response = self.listen()
+            print(&#34;broadcast &#34;, broadcast_response.hex())
+
+            # internally create a switch obj
+            switch = Switch(position=i + 1, raw=broadcast_response)
+            self.package.switch(switch)  # sending switch contents via sender
+            self.switch_manager.add(switch)
+
+            status_cmd = switch.gen_package(Commands.SendStatus.value)
+            self.package.debug(&#34;Sending command: {}&#34;.format(status_cmd.hex()))
+            response = self.send(status_cmd)
+            self.package.debug(&#34;Response: {}&#34;.format(response.hex()))
+            self.switch_manager.update(switch, response)
+            self.package.switch_status(switch)
+
+            go_inactive = switch.gen_package(Commands.GoInactive.value)
+            self.package.debug(&#34;Sending command: {}&#34;.format(go_inactive.hex()))
+            response = self.send(go_inactive)
+            self.package.debug(&#34;Response: {}&#34;.format(response.hex()))
+
+            self.switch_manager.update(switch, response)
+            # self.package.switch(switch)
+            time.sleep(2)
+
+        self.package.done()
+
+    def send(self, msg, tries=5):
+        &#34;&#34;&#34;
+        Send byte string on connected port, and listen for response
+        returns only the body of packet
+        &#34;&#34;&#34;
+        attempt = 0
+        response = b&#34;&#34;
+        body = None
+        while 1:
+            if attempt == tries:
+                err = \
+                &#34;&#34;&#34;
+                Incorrect response recieved from switch.
+                Last response is: 0x{}
+                &#34;&#34;&#34;.format(response.hex())
+                raise serial.SerialException(err)
+
+            # attempt to write to stream
+            self.write(msg)
+            response = self.listen()
+
+            body = response[3:-1]
+
+            # checking checksum
+            if not self.chksum_ok(msg):
+                attempt += 1
+                self.package.debug(&#34;Chksum incorrect&#34;)
+                continue
+
+            # most likely a successful attempt, if it passes
+            if len(body) &gt; 1:
+                self.package.debug(&#34;Receiving status message&#34;)
+                break
+            elif len(body) == 1:
+                if body == Commands.ACK.value:
+                    self.package.debug(&#34;ACK Recieved&#34;)
+                    break
+                else:
+                    self.package.debug(&#34;NACK recieved trying again..&#34;)
+                    attempt += 1
+                    continue
+            else:
+                attempt += 1
+
+        return response
+
+    def listen(self, timeout=3, tries=5):
+        now = time.time()
+        buf = b&#34;&#34;
+
+        while time.time() - now &lt;= timeout:
+            in_waiting = self.inWaiting()
+            if in_waiting &gt; 0:
+                buf += self.read(in_waiting)
+                now = time.time()
+        return buf
+
+    def bytearray_to_hex(self, arr):
+        return &#34;&#34;.join([i.hex() for i in arr])
+
+    def chksum_ok(self, data):
+        if not isinstance(data, bytes):
+            raise ValueError(&#34;Incoming data must be a bytes&#34;)
+
+        good_data = True
+
+        supplied_chksum = data[-1]
+        calculated_chksum = 0
+
+        for idx in range(len(data) - 1):
+            calculated_chksum ^= data[idx]
+
+        if calculated_chksum != supplied_chksum:
+
+            print(&#34;Checksums do not match: {}/{}&#34;.format(
+                calculated_chksum, supplied_chksum))
+            return not good_data
+
+        return good_data
+
+    def chksum(self, data):
+        &#34;&#34;&#34;
+        return a bytes of data with included checksum
+        &#34;&#34;&#34;
+        chksum = 0
+        if not isinstance(data, bytes):
+            data = bytes([data])
+
+        for element in data:
+            chksum ^= element
+
+        data += bytes([chksum])
+
+        return data
+
+    def delay(self, seconds):
+        start = time.time()
+
+        while time.time() - start &lt;= seconds:
+            continue
+
+    def reset(self):
+        self.write(b&#39;zl&#39;)
+        self.delay(2)
+        self.write(b&#39;zL&#39;)</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>serial.serialposix.Serial</li>
+<li>serial.serialutil.SerialBase</li>
+<li>io.RawIOBase</li>
+<li>_io._RawIOBase</li>
+<li>io.IOBase</li>
+<li>_io._IOBase</li>
+<li>serial.serialposix.PlatformSpecific</li>
+<li>serial.serialposix.PlatformSpecificBase</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="shooting-verification-gui.pysrc.lisc.LISC.incoming_buffer"><code class="name">var <span class="ident">incoming_buffer</span></code></dt>
+<dd>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
+</dd>
+<dt id="shooting-verification-gui.pysrc.lisc.LISC.package"><code class="name">var <span class="ident">package</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+<dt id="shooting-verification-gui.pysrc.lisc.LISC.switch_manager"><code class="name">var <span class="ident">switch_manager</span></code></dt>
+<dd>
+<section class="desc"></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="shooting-verification-gui.pysrc.lisc.LISC.bytearray_to_hex"><code class="name flex">
+<span>def <span class="ident">bytearray_to_hex</span></span>(<span>self, arr)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bytearray_to_hex(self, arr):
+    return &#34;&#34;.join([i.hex() for i in arr])</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.lisc.LISC.chksum"><code class="name flex">
+<span>def <span class="ident">chksum</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>return a bytes of data with included checksum</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def chksum(self, data):
+    &#34;&#34;&#34;
+    return a bytes of data with included checksum
+    &#34;&#34;&#34;
+    chksum = 0
+    if not isinstance(data, bytes):
+        data = bytes([data])
+
+    for element in data:
+        chksum ^= element
+
+    data += bytes([chksum])
+
+    return data</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.lisc.LISC.chksum_ok"><code class="name flex">
+<span>def <span class="ident">chksum_ok</span></span>(<span>self, data)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def chksum_ok(self, data):
+    if not isinstance(data, bytes):
+        raise ValueError(&#34;Incoming data must be a bytes&#34;)
+
+    good_data = True
+
+    supplied_chksum = data[-1]
+    calculated_chksum = 0
+
+    for idx in range(len(data) - 1):
+        calculated_chksum ^= data[idx]
+
+    if calculated_chksum != supplied_chksum:
+
+        print(&#34;Checksums do not match: {}/{}&#34;.format(
+            calculated_chksum, supplied_chksum))
+        return not good_data
+
+    return good_data</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.lisc.LISC.delay"><code class="name flex">
+<span>def <span class="ident">delay</span></span>(<span>self, seconds)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def delay(self, seconds):
+    start = time.time()
+
+    while time.time() - start &lt;= seconds:
+        continue</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.lisc.LISC.do_inventory"><code class="name flex">
+<span>def <span class="ident">do_inventory</span></span>(<span>self, sender)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def do_inventory(self, sender):
+    # package = ConnPackage(queue)
+    self.package.set_sender(sender)
+    self.package.debug(&#34;Resetting LISC&#34;)
+    self.reset()
+    # response = self.read_serial(lisc)
+    for i in range(3):
+        # listen for broadcast address
+        broadcast_response = self.listen()
+        print(&#34;broadcast &#34;, broadcast_response.hex())
+
+        # internally create a switch obj
+        switch = Switch(position=i + 1, raw=broadcast_response)
+        self.package.switch(switch)  # sending switch contents via sender
+        self.switch_manager.add(switch)
+
+        status_cmd = switch.gen_package(Commands.SendStatus.value)
+        self.package.debug(&#34;Sending command: {}&#34;.format(status_cmd.hex()))
+        response = self.send(status_cmd)
+        self.package.debug(&#34;Response: {}&#34;.format(response.hex()))
+        self.switch_manager.update(switch, response)
+        self.package.switch_status(switch)
+
+        go_inactive = switch.gen_package(Commands.GoInactive.value)
+        self.package.debug(&#34;Sending command: {}&#34;.format(go_inactive.hex()))
+        response = self.send(go_inactive)
+        self.package.debug(&#34;Response: {}&#34;.format(response.hex()))
+
+        self.switch_manager.update(switch, response)
+        # self.package.switch(switch)
+        time.sleep(2)
+
+    self.package.done()</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.lisc.LISC.listen"><code class="name flex">
+<span>def <span class="ident">listen</span></span>(<span>self, timeout=3, tries=5)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def listen(self, timeout=3, tries=5):
+    now = time.time()
+    buf = b&#34;&#34;
+
+    while time.time() - now &lt;= timeout:
+        in_waiting = self.inWaiting()
+        if in_waiting &gt; 0:
+            buf += self.read(in_waiting)
+            now = time.time()
+    return buf</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.lisc.LISC.reset"><code class="name flex">
+<span>def <span class="ident">reset</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def reset(self):
+    self.write(b&#39;zl&#39;)
+    self.delay(2)
+    self.write(b&#39;zL&#39;)</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.lisc.LISC.send"><code class="name flex">
+<span>def <span class="ident">send</span></span>(<span>self, msg, tries=5)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>Send byte string on connected port, and listen for response
+returns only the body of packet</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def send(self, msg, tries=5):
+    &#34;&#34;&#34;
+    Send byte string on connected port, and listen for response
+    returns only the body of packet
+    &#34;&#34;&#34;
+    attempt = 0
+    response = b&#34;&#34;
+    body = None
+    while 1:
+        if attempt == tries:
+            err = \
+            &#34;&#34;&#34;
+            Incorrect response recieved from switch.
+            Last response is: 0x{}
+            &#34;&#34;&#34;.format(response.hex())
+            raise serial.SerialException(err)
+
+        # attempt to write to stream
+        self.write(msg)
+        response = self.listen()
+
+        body = response[3:-1]
+
+        # checking checksum
+        if not self.chksum_ok(msg):
+            attempt += 1
+            self.package.debug(&#34;Chksum incorrect&#34;)
+            continue
+
+        # most likely a successful attempt, if it passes
+        if len(body) &gt; 1:
+            self.package.debug(&#34;Receiving status message&#34;)
+            break
+        elif len(body) == 1:
+            if body == Commands.ACK.value:
+                self.package.debug(&#34;ACK Recieved&#34;)
+                break
+            else:
+                self.package.debug(&#34;NACK recieved trying again..&#34;)
+                attempt += 1
+                continue
+        else:
+            attempt += 1
+
+    return response</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="shooting-verification-gui.pysrc" href="index.html">shooting-verification-gui.pysrc</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="shooting-verification-gui.pysrc.lisc.LISC" href="#shooting-verification-gui.pysrc.lisc.LISC">LISC</a></code></h4>
+<ul class="two-column">
+<li><code><a title="shooting-verification-gui.pysrc.lisc.LISC.bytearray_to_hex" href="#shooting-verification-gui.pysrc.lisc.LISC.bytearray_to_hex">bytearray_to_hex</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.lisc.LISC.chksum" href="#shooting-verification-gui.pysrc.lisc.LISC.chksum">chksum</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.lisc.LISC.chksum_ok" href="#shooting-verification-gui.pysrc.lisc.LISC.chksum_ok">chksum_ok</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.lisc.LISC.delay" href="#shooting-verification-gui.pysrc.lisc.LISC.delay">delay</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.lisc.LISC.do_inventory" href="#shooting-verification-gui.pysrc.lisc.LISC.do_inventory">do_inventory</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.lisc.LISC.incoming_buffer" href="#shooting-verification-gui.pysrc.lisc.LISC.incoming_buffer">incoming_buffer</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.lisc.LISC.listen" href="#shooting-verification-gui.pysrc.lisc.LISC.listen">listen</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.lisc.LISC.package" href="#shooting-verification-gui.pysrc.lisc.LISC.package">package</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.lisc.LISC.reset" href="#shooting-verification-gui.pysrc.lisc.LISC.reset">reset</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.lisc.LISC.send" href="#shooting-verification-gui.pysrc.lisc.LISC.send">send</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.lisc.LISC.switch_manager" href="#shooting-verification-gui.pysrc.lisc.LISC.switch_manager">switch_manager</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

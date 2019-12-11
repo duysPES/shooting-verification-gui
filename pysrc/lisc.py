@@ -1,18 +1,55 @@
 import serial
 import time
 import multiprocessing as mp
-from pysrc.errors import ChkSumError, IncorrectPayLoad, ErrorCodes
 from pysrc.switch import SwitchManager, Switch
 from pysrc.commands import Commands
 from pysrc.thread import ConnMode, InfoType, ConnPackage
 
 
 class LISC(serial.Serial):
-    incoming_buffer = []
+    """
+    Abstract representation of the embedded device
+    that handles the actual communication between computer
+    and addressable switch. Inherits from `serial.Serial`
+    from *pyserial*, with extended functionalities
+
+    ```python
+    lisc = Lisc()
+    lisc.reset()
+    lisc.talk_to_switches()
+    lisc.ask_switches_for_cake()
+    lisc.blowup()
+    lisc.take_over_the_world()
+    # possibilities are endless
+    ```
+    """
+
     switch_manager = SwitchManager()
+    """
+    manager for keeping track of switches
+    """
+
     package = ConnPackage()
+    """
+    package object that zips all incoming reponses from switches in a compatible format 
+    that is consumed by GUI at the end of the half-duplex sender
+    """
 
     def do_inventory(self, sender):
+        """
+        ```
+        input: queue.Queue
+        return: None
+        ```
+        The main inventory protocol of the LISC.
+
+        For each `expected` switch it will do the following:
+
+        1. Listen for broadcasting message
+        2. Send StatusRequest
+        3. Send GoInactive
+
+        """
         # package = ConnPackage(queue)
         self.package.set_sender(sender)
         self.package.debug("Resetting LISC")
@@ -48,8 +85,12 @@ class LISC(serial.Serial):
 
     def send(self, msg, tries=5):
         """
+        ```
+        input: bytes, int
+        return: None
+        ```
         Send byte string on connected port, and listen for response
-        returns only the body of packet
+        returns entire byte response
         """
         attempt = 0
         response = b""
@@ -93,6 +134,25 @@ class LISC(serial.Serial):
         return response
 
     def listen(self, timeout=3, tries=5):
+        '''
+        ```
+        input: int, int
+        return: bytes
+        ``` 
+        a timer based serial listen protocol.
+
+
+        Since packets don't all have fixed lengths, 
+        we could complicate the code by hard-coding expected lengths by reponse,
+        but this is error prone and could lead to bugs if things change.
+        Therefore this method just *listens* on the serial port for 
+        a maximum of *timeout*. It returns any information recieved.
+        If buffer is at least 5 bytes long it will pre-maturely break the loop and return results
+
+        *5 bytes is minimum length of a standard NACK/ACK packet*
+        
+     
+        '''
         now = time.time()
         buf = b""
 
@@ -101,12 +161,20 @@ class LISC(serial.Serial):
             if in_waiting > 0:
                 buf += self.read(in_waiting)
                 now = time.time()
+            
+            # if len(buf) >= 5:
+            #     break
+
         return buf
 
-    def bytearray_to_hex(self, arr):
-        return "".join([i.hex() for i in arr])
-
     def chksum_ok(self, data):
+        """
+        ```
+        input: bytes
+        return: bool
+        ```
+        calculates internal checksum on data and matches with supplied checksum
+        """
         if not isinstance(data, bytes):
             raise ValueError("Incoming data must be a bytes")
 
@@ -128,6 +196,10 @@ class LISC(serial.Serial):
 
     def chksum(self, data):
         """
+        ```
+        input: bytes
+        return: bytes
+        ```
         return a bytes of data with included checksum
         """
         chksum = 0
@@ -142,12 +214,28 @@ class LISC(serial.Serial):
         return data
 
     def delay(self, seconds):
+        '''
+        ```
+        input: int
+        return: None
+        ```
+        mechanical `delay` that uses the time module instead of
+        relying on `time.sleep()` which can can issues in multithreading
+        '''
         start = time.time()
 
         while time.time() - start <= seconds:
             continue
 
     def reset(self):
+        """
+        ```
+        input: None
+        return: None
+        ```
+
+        macro method that soft resets LISC
+        """
         self.write(b'zl')
-        self.delay(2)
+        self.delay(1)
         self.write(b'zL')

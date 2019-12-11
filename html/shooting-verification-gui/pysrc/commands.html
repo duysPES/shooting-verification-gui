@@ -1,0 +1,585 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+<meta name="generator" content="pdoc 0.7.2" />
+<title>shooting-verification-gui.pysrc.commands API documentation</title>
+<meta name="description" content="" />
+<link href='https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.0/normalize.min.css' rel='stylesheet'>
+<link href='https://cdnjs.cloudflare.com/ajax/libs/10up-sanitize.css/8.0.0/sanitize.min.css' rel='stylesheet'>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css" rel="stylesheet">
+<style>.flex{display:flex !important}body{line-height:1.5em}#content{padding:20px}#sidebar{padding:30px;overflow:hidden}.http-server-breadcrumbs{font-size:130%;margin:0 0 15px 0}#footer{font-size:.75em;padding:5px 30px;border-top:1px solid #ddd;text-align:right}#footer p{margin:0 0 0 1em;display:inline-block}#footer p:last-child{margin-right:30px}h1,h2,h3,h4,h5{font-weight:300}h1{font-size:2.5em;line-height:1.1em}h2{font-size:1.75em;margin:1em 0 .50em 0}h3{font-size:1.4em;margin:25px 0 10px 0}h4{margin:0;font-size:105%}a{color:#058;text-decoration:none;transition:color .3s ease-in-out}a:hover{color:#e82}.title code{font-weight:bold}h2[id^="header-"]{margin-top:2em}.ident{color:#900}pre code{background:#f8f8f8;font-size:.8em;line-height:1.4em}code{background:#f2f2f1;padding:1px 4px;overflow-wrap:break-word}h1 code{background:transparent}pre{background:#f8f8f8;border:0;border-top:1px solid #ccc;border-bottom:1px solid #ccc;margin:1em 0;padding:1ex}#http-server-module-list{display:flex;flex-flow:column}#http-server-module-list div{display:flex}#http-server-module-list dt{min-width:10%}#http-server-module-list p{margin-top:0}.toc ul,#index{list-style-type:none;margin:0;padding:0}#index code{background:transparent}#index h3{border-bottom:1px solid #ddd}#index ul{padding:0}#index h4{font-weight:bold}#index h4 + ul{margin-bottom:.6em}@media (min-width:200ex){#index .two-column{column-count:2}}@media (min-width:300ex){#index .two-column{column-count:3}}dl{margin-bottom:2em}dl dl:last-child{margin-bottom:4em}dd{margin:0 0 1em 3em}#header-classes + dl > dd{margin-bottom:3em}dd dd{margin-left:2em}dd p{margin:10px 0}.name{background:#eee;font-weight:bold;font-size:.85em;padding:5px 10px;display:inline-block;min-width:40%}.name:hover{background:#e0e0e0}.name > span:first-child{white-space:nowrap}.name.class > span:nth-child(2){margin-left:.4em}.inherited{color:#999;border-left:5px solid #eee;padding-left:1em}.inheritance em{font-style:normal;font-weight:bold}.desc h2{font-weight:400;font-size:1.25em}.desc h3{font-size:1em}.desc dt code{background:inherit}.source summary,.git-link-div{color:#666;text-align:right;font-weight:400;font-size:.8em;text-transform:uppercase}.source summary > *{white-space:nowrap;cursor:pointer}.git-link{color:inherit;margin-left:1em}.source pre{max-height:500px;overflow:auto;margin:0}.source pre code{font-size:12px;overflow:visible}.hlist{list-style:none}.hlist li{display:inline}.hlist li:after{content:',\2002'}.hlist li:last-child:after{content:none}.hlist .hlist{display:inline;padding-left:1em}img{max-width:100%}.admonition{padding:.1em .5em;margin-bottom:1em}.admonition-title{font-weight:bold}.admonition.note,.admonition.info,.admonition.important{background:#aef}.admonition.todo,.admonition.versionadded,.admonition.tip,.admonition.hint{background:#dfd}.admonition.warning,.admonition.versionchanged,.admonition.deprecated{background:#fd4}.admonition.error,.admonition.danger,.admonition.caution{background:lightpink}</style>
+<style media="screen and (min-width: 700px)">@media screen and (min-width:700px){#sidebar{width:30%}#content{width:70%;max-width:100ch;padding:3em 4em;border-left:1px solid #ddd}pre code{font-size:1em}.item .name{font-size:1em}main{display:flex;flex-direction:row-reverse;justify-content:flex-end}.toc ul ul,#index ul{padding-left:1.5em}.toc > ul > li{margin-top:.5em}}</style>
+<style media="print">@media print{#sidebar h1{page-break-before:always}.source{display:none}}@media print{*{background:transparent !important;color:#000 !important;box-shadow:none !important;text-shadow:none !important}a[href]:after{content:" (" attr(href) ")";font-size:90%}a[href][title]:after{content:none}abbr[title]:after{content:" (" attr(title) ")"}.ir a:after,a[href^="javascript:"]:after,a[href^="#"]:after{content:""}pre,blockquote{border:1px solid #999;page-break-inside:avoid}thead{display:table-header-group}tr,img{page-break-inside:avoid}img{max-width:100% !important}@page{margin:0.5cm}p,h2,h3{orphans:3;widows:3}h1,h2,h3,h4,h5,h6{page-break-after:avoid}}</style>
+</head>
+<body>
+<main>
+<article id="content">
+<header>
+<h1 class="title">Module <code>shooting-verification-gui.pysrc.commands</code></h1>
+</header>
+<section id="section-intro">
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">from enum import Enum
+
+
+class Commands(Enum):
+    &#34;&#34;&#34;
+    A list of all commands avaiable
+    &#34;&#34;&#34;
+    ACK = b&#34;\x06&#34;
+    NACK = b&#34;\x15&#34;
+    GoInactive = b&#34;\x1e&#34;
+    SendStatus = b&#34;\x05&#34;
+
+    @staticmethod
+    def is_ack(msg):
+        return Commands.ACK.value == msg
+
+    @staticmethod
+    def is_nack(msg):
+        return Commands.NACK.value == msg
+
+
+class StatusFields:
+    V = [&#39;Voltage&#39;, &#39;V&#39;]
+    T = [&#39;Temperature&#39;, &#39;T&#39;]
+    C = [&#39;Continuity&#39;, &#39;C&#39;]
+    PE = [&#39;Packet Errors&#39;, &#39;PE&#39;]
+    CE = [&#39;Chksum Errors&#39;, &#39;CE&#39;]
+    F = [&#39;Fires&#39;, &#39;F&#39;]
+
+    def __init__(self):
+        self.all_fields = [self.V, self.T, self.C, self.PE, self.CE, self.F]
+
+    def short(self):
+        buf = []
+        for field in self.all_fields:
+            buf.append(field[1])
+        return buf
+
+    def long(self):
+        buf = []
+        for field in self.all_fields:
+            buf.append(field[0])
+        return buf
+
+
+class Status:
+    def __init__(self, body):
+        self.body = body
+
+        if not isinstance(body, bytes):
+            try:
+                self.body = bytes(body)
+            except:
+                raise ValueError(&#34;incorrect input type.&#34;)
+
+        self.bitwise = [
+            &#39;NU&#39;, &#39;FctrMode&#39;, &#39;BrdcstDisabled&#39;, &#39;Inactive&#39;, &#39;Statused&#39;,
+            &#39;PreArmed&#39;, &#39;Armed&#39;, &#39;Fired&#39;
+        ]
+
+    @property
+    def voltage(self):
+        return self.body[0]
+
+    @property
+    def temp(self):
+        return self.body[1]
+
+    # dereference the raw bytes to the individual
+    # fields that make up a status_response
+    def parse(self):
+        fields = StatusFields()
+        if len(self.body) != len(fields.all_fields) + 1:
+            raise IndexError(
+                &#34;Provided status report not same length as fields in memory.&#34;)
+
+        status_report = &#34;&#34;
+        bit_flag = self.body[-1]
+        bit_report = self.bitflag_parse(bit_flag)
+
+        for i, field in enumerate(fields.long()):
+            status_report += &#34;{:15s}: {}\n&#34;.format(field, self.body[i])
+
+        # add bit report
+        status_report += &#34;{}&#34;.format(bit_report)
+        return status_report
+
+    def bitflag_parse(self, flag_bit):
+        msg = &#34;&#34;
+        for i, bit in enumerate(&#34;{:08b}&#34;.format(int(flag_bit))):
+            flag = self.bitwise[i]
+            status = &#34;ON&#34; if int(bit) else &#34;OFF&#34;
+            msg += &#34;\t{:15s}: {}\n&#34;.format(flag, status)
+        return msg
+
+
+#### Unit Tests#####
+__packet = b&#39;\x0b\xd0\xb64\x1f\x05\x01\x00\x00(j&#39;
+
+
+def test_bit_flag_parsing():
+    flag_bit = __packet[-2]
+    status = Status(__packet[3:-1])
+
+    bit_report = status.bitflag_parse(flag_bit)
+    actual = [&#34;OFF&#34;, &#34;OFF&#34;, &#34;ON&#34;, &#34;OFF&#34;, &#34;ON&#34;, &#34;OFF&#34;, &#34;OFF&#34;, &#34;OFF&#34;]
+
+    so_far_so_good = True
+    lines = bit_report.split(&#34;\n&#34;)[:-1]
+    for i, line in enumerate(lines):
+        if actual[i] not in line:
+            so_far_so_good = False
+
+    assert so_far_so_good
+
+
+def test_voltage():
+    body = __packet[3:-1]
+    status = Status(body)
+    voltage = status.voltage
+    assert voltage == body[0]
+
+
+def test_temperature():
+    body = __packet[3:-1]
+    status = Status(body)
+    temp = status.temp
+    assert temp == body[1]</code></pre>
+</details>
+</section>
+<section>
+</section>
+<section>
+</section>
+<section>
+<h2 class="section-title" id="header-functions">Functions</h2>
+<dl>
+<dt id="shooting-verification-gui.pysrc.commands.test_bit_flag_parsing"><code class="name flex">
+<span>def <span class="ident">test_bit_flag_parsing</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_bit_flag_parsing():
+    flag_bit = __packet[-2]
+    status = Status(__packet[3:-1])
+
+    bit_report = status.bitflag_parse(flag_bit)
+    actual = [&#34;OFF&#34;, &#34;OFF&#34;, &#34;ON&#34;, &#34;OFF&#34;, &#34;ON&#34;, &#34;OFF&#34;, &#34;OFF&#34;, &#34;OFF&#34;]
+
+    so_far_so_good = True
+    lines = bit_report.split(&#34;\n&#34;)[:-1]
+    for i, line in enumerate(lines):
+        if actual[i] not in line:
+            so_far_so_good = False
+
+    assert so_far_so_good</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.test_temperature"><code class="name flex">
+<span>def <span class="ident">test_temperature</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_temperature():
+    body = __packet[3:-1]
+    status = Status(body)
+    temp = status.temp
+    assert temp == body[1]</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.test_voltage"><code class="name flex">
+<span>def <span class="ident">test_voltage</span></span>(<span>)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def test_voltage():
+    body = __packet[3:-1]
+    status = Status(body)
+    voltage = status.voltage
+    assert voltage == body[0]</code></pre>
+</details>
+</dd>
+</dl>
+</section>
+<section>
+<h2 class="section-title" id="header-classes">Classes</h2>
+<dl>
+<dt id="shooting-verification-gui.pysrc.commands.Commands"><code class="flex name class">
+<span>class <span class="ident">Commands</span></span>
+<span>(</span><span>*args, **kwargs)</span>
+</code></dt>
+<dd>
+<section class="desc"><p>A list of all commands avaiable</p></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Commands(Enum):
+    &#34;&#34;&#34;
+    A list of all commands avaiable
+    &#34;&#34;&#34;
+    ACK = b&#34;\x06&#34;
+    NACK = b&#34;\x15&#34;
+    GoInactive = b&#34;\x1e&#34;
+    SendStatus = b&#34;\x05&#34;
+
+    @staticmethod
+    def is_ack(msg):
+        return Commands.ACK.value == msg
+
+    @staticmethod
+    def is_nack(msg):
+        return Commands.NACK.value == msg</code></pre>
+</details>
+<h3>Ancestors</h3>
+<ul class="hlist">
+<li>enum.Enum</li>
+</ul>
+<h3>Class variables</h3>
+<dl>
+<dt id="shooting-verification-gui.pysrc.commands.Commands.ACK"><code class="name">var <span class="ident">ACK</span></code></dt>
+<dd>
+<section class="desc"><p>A list of all commands avaiable</p></section>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.Commands.GoInactive"><code class="name">var <span class="ident">GoInactive</span></code></dt>
+<dd>
+<section class="desc"><p>A list of all commands avaiable</p></section>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.Commands.NACK"><code class="name">var <span class="ident">NACK</span></code></dt>
+<dd>
+<section class="desc"><p>A list of all commands avaiable</p></section>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.Commands.SendStatus"><code class="name">var <span class="ident">SendStatus</span></code></dt>
+<dd>
+<section class="desc"><p>A list of all commands avaiable</p></section>
+</dd>
+</dl>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.Status"><code class="flex name class">
+<span>class <span class="ident">Status</span></span>
+<span>(</span><span>body)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class Status:
+    def __init__(self, body):
+        self.body = body
+
+        if not isinstance(body, bytes):
+            try:
+                self.body = bytes(body)
+            except:
+                raise ValueError(&#34;incorrect input type.&#34;)
+
+        self.bitwise = [
+            &#39;NU&#39;, &#39;FctrMode&#39;, &#39;BrdcstDisabled&#39;, &#39;Inactive&#39;, &#39;Statused&#39;,
+            &#39;PreArmed&#39;, &#39;Armed&#39;, &#39;Fired&#39;
+        ]
+
+    @property
+    def voltage(self):
+        return self.body[0]
+
+    @property
+    def temp(self):
+        return self.body[1]
+
+    # dereference the raw bytes to the individual
+    # fields that make up a status_response
+    def parse(self):
+        fields = StatusFields()
+        if len(self.body) != len(fields.all_fields) + 1:
+            raise IndexError(
+                &#34;Provided status report not same length as fields in memory.&#34;)
+
+        status_report = &#34;&#34;
+        bit_flag = self.body[-1]
+        bit_report = self.bitflag_parse(bit_flag)
+
+        for i, field in enumerate(fields.long()):
+            status_report += &#34;{:15s}: {}\n&#34;.format(field, self.body[i])
+
+        # add bit report
+        status_report += &#34;{}&#34;.format(bit_report)
+        return status_report
+
+    def bitflag_parse(self, flag_bit):
+        msg = &#34;&#34;
+        for i, bit in enumerate(&#34;{:08b}&#34;.format(int(flag_bit))):
+            flag = self.bitwise[i]
+            status = &#34;ON&#34; if int(bit) else &#34;OFF&#34;
+            msg += &#34;\t{:15s}: {}\n&#34;.format(flag, status)
+        return msg</code></pre>
+</details>
+<h3>Instance variables</h3>
+<dl>
+<dt id="shooting-verification-gui.pysrc.commands.Status.temp"><code class="name">var <span class="ident">temp</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def temp(self):
+    return self.body[1]</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.Status.voltage"><code class="name">var <span class="ident">voltage</span></code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">@property
+def voltage(self):
+    return self.body[0]</code></pre>
+</details>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="shooting-verification-gui.pysrc.commands.Status.bitflag_parse"><code class="name flex">
+<span>def <span class="ident">bitflag_parse</span></span>(<span>self, flag_bit)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def bitflag_parse(self, flag_bit):
+    msg = &#34;&#34;
+    for i, bit in enumerate(&#34;{:08b}&#34;.format(int(flag_bit))):
+        flag = self.bitwise[i]
+        status = &#34;ON&#34; if int(bit) else &#34;OFF&#34;
+        msg += &#34;\t{:15s}: {}\n&#34;.format(flag, status)
+    return msg</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.Status.parse"><code class="name flex">
+<span>def <span class="ident">parse</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def parse(self):
+    fields = StatusFields()
+    if len(self.body) != len(fields.all_fields) + 1:
+        raise IndexError(
+            &#34;Provided status report not same length as fields in memory.&#34;)
+
+    status_report = &#34;&#34;
+    bit_flag = self.body[-1]
+    bit_report = self.bitflag_parse(bit_flag)
+
+    for i, field in enumerate(fields.long()):
+        status_report += &#34;{:15s}: {}\n&#34;.format(field, self.body[i])
+
+    # add bit report
+    status_report += &#34;{}&#34;.format(bit_report)
+    return status_report</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.StatusFields"><code class="flex name class">
+<span>class <span class="ident">StatusFields</span></span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">class StatusFields:
+    V = [&#39;Voltage&#39;, &#39;V&#39;]
+    T = [&#39;Temperature&#39;, &#39;T&#39;]
+    C = [&#39;Continuity&#39;, &#39;C&#39;]
+    PE = [&#39;Packet Errors&#39;, &#39;PE&#39;]
+    CE = [&#39;Chksum Errors&#39;, &#39;CE&#39;]
+    F = [&#39;Fires&#39;, &#39;F&#39;]
+
+    def __init__(self):
+        self.all_fields = [self.V, self.T, self.C, self.PE, self.CE, self.F]
+
+    def short(self):
+        buf = []
+        for field in self.all_fields:
+            buf.append(field[1])
+        return buf
+
+    def long(self):
+        buf = []
+        for field in self.all_fields:
+            buf.append(field[0])
+        return buf</code></pre>
+</details>
+<h3>Class variables</h3>
+<dl>
+<dt id="shooting-verification-gui.pysrc.commands.StatusFields.C"><code class="name">var <span class="ident">C</span></code></dt>
+<dd>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.StatusFields.CE"><code class="name">var <span class="ident">CE</span></code></dt>
+<dd>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.StatusFields.F"><code class="name">var <span class="ident">F</span></code></dt>
+<dd>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.StatusFields.PE"><code class="name">var <span class="ident">PE</span></code></dt>
+<dd>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.StatusFields.T"><code class="name">var <span class="ident">T</span></code></dt>
+<dd>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.StatusFields.V"><code class="name">var <span class="ident">V</span></code></dt>
+<dd>
+<section class="desc"><p>Built-in mutable sequence.</p>
+<p>If no argument is given, the constructor creates a new empty list.
+The argument must be an iterable if specified.</p></section>
+</dd>
+</dl>
+<h3>Methods</h3>
+<dl>
+<dt id="shooting-verification-gui.pysrc.commands.StatusFields.long"><code class="name flex">
+<span>def <span class="ident">long</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def long(self):
+    buf = []
+    for field in self.all_fields:
+        buf.append(field[0])
+    return buf</code></pre>
+</details>
+</dd>
+<dt id="shooting-verification-gui.pysrc.commands.StatusFields.short"><code class="name flex">
+<span>def <span class="ident">short</span></span>(<span>self)</span>
+</code></dt>
+<dd>
+<section class="desc"></section>
+<details class="source">
+<summary>
+<span>Expand source code</span>
+</summary>
+<pre><code class="python">def short(self):
+    buf = []
+    for field in self.all_fields:
+        buf.append(field[1])
+    return buf</code></pre>
+</details>
+</dd>
+</dl>
+</dd>
+</dl>
+</section>
+</article>
+<nav id="sidebar">
+<h1>Index</h1>
+<div class="toc">
+<ul></ul>
+</div>
+<ul id="index">
+<li><h3>Super-module</h3>
+<ul>
+<li><code><a title="shooting-verification-gui.pysrc" href="index.html">shooting-verification-gui.pysrc</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-functions">Functions</a></h3>
+<ul class="">
+<li><code><a title="shooting-verification-gui.pysrc.commands.test_bit_flag_parsing" href="#shooting-verification-gui.pysrc.commands.test_bit_flag_parsing">test_bit_flag_parsing</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.test_temperature" href="#shooting-verification-gui.pysrc.commands.test_temperature">test_temperature</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.test_voltage" href="#shooting-verification-gui.pysrc.commands.test_voltage">test_voltage</a></code></li>
+</ul>
+</li>
+<li><h3><a href="#header-classes">Classes</a></h3>
+<ul>
+<li>
+<h4><code><a title="shooting-verification-gui.pysrc.commands.Commands" href="#shooting-verification-gui.pysrc.commands.Commands">Commands</a></code></h4>
+<ul class="">
+<li><code><a title="shooting-verification-gui.pysrc.commands.Commands.ACK" href="#shooting-verification-gui.pysrc.commands.Commands.ACK">ACK</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.Commands.GoInactive" href="#shooting-verification-gui.pysrc.commands.Commands.GoInactive">GoInactive</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.Commands.NACK" href="#shooting-verification-gui.pysrc.commands.Commands.NACK">NACK</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.Commands.SendStatus" href="#shooting-verification-gui.pysrc.commands.Commands.SendStatus">SendStatus</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="shooting-verification-gui.pysrc.commands.Status" href="#shooting-verification-gui.pysrc.commands.Status">Status</a></code></h4>
+<ul class="">
+<li><code><a title="shooting-verification-gui.pysrc.commands.Status.bitflag_parse" href="#shooting-verification-gui.pysrc.commands.Status.bitflag_parse">bitflag_parse</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.Status.parse" href="#shooting-verification-gui.pysrc.commands.Status.parse">parse</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.Status.temp" href="#shooting-verification-gui.pysrc.commands.Status.temp">temp</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.Status.voltage" href="#shooting-verification-gui.pysrc.commands.Status.voltage">voltage</a></code></li>
+</ul>
+</li>
+<li>
+<h4><code><a title="shooting-verification-gui.pysrc.commands.StatusFields" href="#shooting-verification-gui.pysrc.commands.StatusFields">StatusFields</a></code></h4>
+<ul class="two-column">
+<li><code><a title="shooting-verification-gui.pysrc.commands.StatusFields.C" href="#shooting-verification-gui.pysrc.commands.StatusFields.C">C</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.StatusFields.CE" href="#shooting-verification-gui.pysrc.commands.StatusFields.CE">CE</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.StatusFields.F" href="#shooting-verification-gui.pysrc.commands.StatusFields.F">F</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.StatusFields.PE" href="#shooting-verification-gui.pysrc.commands.StatusFields.PE">PE</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.StatusFields.T" href="#shooting-verification-gui.pysrc.commands.StatusFields.T">T</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.StatusFields.V" href="#shooting-verification-gui.pysrc.commands.StatusFields.V">V</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.StatusFields.long" href="#shooting-verification-gui.pysrc.commands.StatusFields.long">long</a></code></li>
+<li><code><a title="shooting-verification-gui.pysrc.commands.StatusFields.short" href="#shooting-verification-gui.pysrc.commands.StatusFields.short">short</a></code></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</nav>
+</main>
+<footer id="footer">
+<p>Generated by <a href="https://pdoc3.github.io/pdoc"><cite>pdoc</cite> 0.7.2</a>.</p>
+</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+<script>hljs.initHighlightingOnLoad()</script>
+</body>
+</html>

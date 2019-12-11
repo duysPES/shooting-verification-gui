@@ -2,6 +2,11 @@ import PySimpleGUI as sg
 
 
 class LayOuts:
+    """
+    Storage class that holds all the PySimpleGUI compatible
+    layout frames and widgets that `sg.Window` will use to 
+    render gui.
+    """
     def main_menu(self):
         layout = sg.Menu(
             [['Edit', ['Change Expected Amount']], ['Simulation', ['Run']]],

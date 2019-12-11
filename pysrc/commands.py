@@ -3,40 +3,112 @@ from enum import Enum
 
 class Commands(Enum):
     """
-    A list of all commands avaiable
+    Enum that holds all supported commands of
+    Pioneer's Addressable Switches, along with byte values
+    of each.
     """
-    ACK = b"\x06"
-    NACK = b"\x15"
-    GoInactive = b"\x1e"
-    SendStatus = b"\x05"
 
+    ACK = b"\x06"
+    """
+    Acknowledgement.
+    """
+
+    NACK = b"\x15"
+    """
+    Not Acknowledged, mainly used when something
+    went wrong
+    """
+
+    GoInactive = b"\x1e"
+    """
+    Command to put addressed switch into low power
+    mode and allow pass-thru to next switch in chain
+    """
+    SendStatus = b"\x05"
+    """
+    Command that is used for switch to report
+    debug information.
+    """
+
+    
     @staticmethod
     def is_ack(msg):
+        """
+        Helper method to determine if msg is ACK
+        """
         return Commands.ACK.value == msg
 
     @staticmethod
     def is_nack(msg):
+        """
+        Helper method to determine if msg is NACK
+        """
         return Commands.NACK.value == msg
 
 
 class StatusFields:
+    """
+    Class that returns human-readable fields from a switches
+    GetStatus command.
+
+    """
+
     V = ['Voltage', 'V']
+    """
+    Voltage
+    """
+
     T = ['Temperature', 'T']
+    """
+    Temperature
+    """
+
     C = ['Continuity', 'C']
+    """
+    Detonator detection
+    """
+
     PE = ['Packet Errors', 'PE']
+    """
+    Number of reported packet errors
+    """
+
     CE = ['Chksum Errors', 'CE']
+    """
+    Number of reported checksum errors
+    """
+
     F = ['Fires', 'F']
+    """
+    Reported number of fires 
+
+    *(when switch goes into `Fire` mode this value will increase by 1)*
+    """
 
     def __init__(self):
         self.all_fields = [self.V, self.T, self.C, self.PE, self.CE, self.F]
 
     def short(self):
+        """
+        returns a list of all human-readable
+        field names in their short name versions
+
+        *etc: C,PE,F,...*
+        """
+
         buf = []
         for field in self.all_fields:
             buf.append(field[1])
         return buf
 
     def long(self):
+        """
+        returns a list of all human-readable
+        field names in their long name versions
+
+        *etc: Fires, Chksum Errors, ....*
+        """
+
         buf = []
         for field in self.all_fields:
             buf.append(field[0])
@@ -44,6 +116,51 @@ class StatusFields:
 
 
 class Status:
+    """
+    Handles and parses the raw bytes of the reponse of GetStatus
+    from an addressable switch.
+
+    ```python
+    # To obtain Voltage, Temperature, and pretty formatting.
+
+    # raw_packet of get_status is 11 bytes long
+    raw_packet = b"\\xff\\x0a\\x12\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\xba"
+    #              [---addr----][V   T   C   PE  CE  F  BF][Chksum]
+    # human-hex:      0xff0a12  01  02  03   04  05 06  07   ba
+
+
+    # only interested in bytes after `address` 
+    # and not including `chksum`
+    status_body = [3:-1] 
+    status = Status(status_body)
+
+    # obtain voltage
+    voltage = status.voltage
+
+    # obtain temperature
+    temperature = status.temperature
+
+    pretty_str = status.parse()
+    # above prints...
+    '''
+    Voltage        : 1
+    Temperature    : 2
+    Continuity     : 3
+    Packet Errors  : 4
+    Chksum Errors  : 5
+    Fires          : 6
+            NU             : OFF
+            FctrMode       : OFF
+            BrdcstDisabled : OFF
+            Inactive       : OFF
+            Statused       : OFF
+            PreArmed       : ON
+            Armed          : ON
+            Fired          : ON
+    '''
+    ```
+    """
+
     def __init__(self, body):
         self.body = body
 
@@ -60,15 +177,34 @@ class Status:
 
     @property
     def voltage(self):
+        """
+        returns voltage value from status byte string
+        """
+
         return self.body[0]
 
     @property
     def temp(self):
+        """
+        returns temperature value from status byte string
+        """
+
         return self.body[1]
 
     # dereference the raw bytes to the individual
     # fields that make up a status_response
     def parse(self):
+        """
+        takes entire status byte string and returns
+        a pretty string that can be used for reporting.
+        
+        *see above for example usage*
+
+        ```
+        input: None
+        return: str
+        ```
+        """
         fields = StatusFields()
         if len(self.body) != len(fields.all_fields) + 1:
             raise IndexError(
@@ -86,6 +222,16 @@ class Status:
         return status_report
 
     def bitflag_parse(self, flag_bit):
+        """
+        The last bit in status byte message is a bit
+        flag byte, used to report certains flags that
+        have been set. 
+
+        ```
+        input: bytes
+        return: str
+        ```
+        """
         msg = ""
         for i, bit in enumerate("{:08b}".format(int(flag_bit))):
             flag = self.bitwise[i]
@@ -99,6 +245,11 @@ __packet = b'\x0b\xd0\xb64\x1f\x05\x01\x00\x00(j'
 
 
 def test_bit_flag_parsing():
+    """
+    unit test for correct parsing of the
+    bit flag byte in status report
+    """
+
     flag_bit = __packet[-2]
     status = Status(__packet[3:-1])
 
@@ -115,6 +266,10 @@ def test_bit_flag_parsing():
 
 
 def test_voltage():
+    """
+    unit test for testing voltage placement and value
+    """
+
     body = __packet[3:-1]
     status = Status(body)
     voltage = status.voltage
@@ -122,6 +277,9 @@ def test_voltage():
 
 
 def test_temperature():
+    """
+    unit test for testing temperature placement and value
+    """
     body = __packet[3:-1]
     status = Status(body)
     temp = status.temp
