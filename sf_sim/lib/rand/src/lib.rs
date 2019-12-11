@@ -1,5 +1,5 @@
-use rand;
-use rand::Rng;
+pub use rand;
+pub use rand::Rng;
 
 #[derive(Debug)]
 pub struct RandSwitchMetric {}

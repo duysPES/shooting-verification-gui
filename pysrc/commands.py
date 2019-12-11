@@ -2,6 +2,9 @@ from enum import Enum
 
 
 class Commands(Enum):
+    """
+    A list of all commands avaiable
+    """
     ACK = b"\x06"
     NACK = b"\x15"
     GoInactive = b"\x1e"

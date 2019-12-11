@@ -6,8 +6,11 @@ from pysrc.config import Config
 import PySimpleGUI as sg
 from pysrc.switch import Switch, SwitchManager
 from pysrc.states_sim import SimStateMachine, SimStates
+import subprocess
+import time
+import os
 
-c = Config().dotted_dict()
+c = Config()
 
 
 class SimClient:
@@ -61,15 +64,16 @@ class SimClient:
             try:
 
                 d = self.socket.recv(16, socket.MSG_DONTWAIT)
+                print(d)
                 if len(d) == 0:
                     data = []
                     data.append(b'closed connection')
                     break
-
-                data.append(d)
+                if len(d) > 0:
+                    data.append(d)
             except Exception:
                 end = time.time()
-
+        # print('data', data)
         try:
             return "".join([d.decode() for d in data])
         except UnicodeDecodeError:
@@ -95,6 +99,7 @@ class SimClient:
 
 class Simulator:
     server = None
+    host = None
     port = None
     window = None
     gui_timeout = 0.1
@@ -102,15 +107,31 @@ class Simulator:
 
     def __init__(self, gui):
         self.gui = gui
-        self.server = 'localhost'
+        self.host = 'localhost'
         self.port = 8000
 
         layout = self.gui.lo.simulation_layout()
         self.window = sg.Window(
-            'Switch Simulator Server {}'.format(c.SIM_SERVER.version), layout)
+            'Switch Simulator Server {}'.format(c.sim_server("version")),
+            layout)
+
+    def server_send(self, msg):
+        print("{} [SERVER] => {}".format())
+
+    def start_server(self):
+        exe = os.getcwd() + "/sf_sim/target/release/sim"
+        self.server = subprocess.Popen(["{}".format(exe)])
+        print(self.server.stdout)
+
+    def stop_server(self):
+        # physically send ctrl-c to program.
+        self.server.terminate()
+        print(self.server.stdout)
 
     def run(self):
-        with SimClient(server=self.server, port=self.port) as client:
+        self.start_server()
+        time.sleep(0.1)
+        with SimClient(server=self.host, port=self.port) as client:
             connected = False
             while True:
                 if not connected:
@@ -137,7 +158,6 @@ class Simulator:
                     # parses data and acts accordingly as well as changes to next
                     # state depending on incoming data
                     # print(self.state_handler.current_state)
-
                     self.state_handler.execute(client, data, self)
                     # print(self.state_handler.current_state)
                 elif len(data) > 0:
@@ -148,6 +168,7 @@ class Simulator:
                     msg = "[{}] {}".format(latest_switch, data)
                     self.server_mode(msg)
                     print("From server: ", data)
+        self.stop_server()
 
     def output(self, msg, append=True):
         self.gui.write_element(self.window, 'ml_main', msg, append)

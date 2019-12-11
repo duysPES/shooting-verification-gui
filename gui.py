@@ -12,7 +12,7 @@ from collections import deque
 from pysrc.switch import Switch
 from pysrc.commands import Status, Commands
 
-c = Config().dotted_dict()
+c = Config()
 
 sg.change_look_and_feel('GreenTan')
 
@@ -27,7 +27,8 @@ class SimpleShootingInterface:
                                 layout=self.layout,
                                 default_element_size=(40, 1),
                                 grab_anywhere=False,
-                                size=(str(c.SSI.width), str(c.SSI.height)),
+                                size=(str(c.ssi("width")),
+                                      str(c.ssi("height"))),
                                 finalize=True)
         self.set_window_title()
 
@@ -61,7 +62,7 @@ class SimpleShootingInterface:
         w(num)
 
     def set_window_title(self, msg=""):
-        msg = "SSI v{} {}".format(c.SSI.version, msg)
+        msg = "SSI v{} {}".format(c.ssi("version"), msg)
         self.window.TKroot.title(msg)
 
     def loop(self):
@@ -69,7 +70,7 @@ class SimpleShootingInterface:
         vol_temp_window = None
 
         while True:
-            event, values = self.window.read(timeout=c.SSI.async_timeout)
+            event, values = self.window.read(timeout=c.ssi('async_timeout'))
             if event != '__TIMEOUT__':
                 print(event, values)
             if event in (None, 'Quit'):

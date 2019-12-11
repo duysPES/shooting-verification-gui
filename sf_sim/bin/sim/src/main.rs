@@ -40,7 +40,7 @@ impl ClientHandler {
 
     fn split_packet(&self, packet: &mut BytesMut) -> (BytesMut, BytesMut, BytesMut) {
         // println!("{:?}", packet);
-        let addr = packet.split_to(2);
+        let addr = packet.split_to(3);
         let chksum = packet.split_off(packet.len() - 1);
         let body = packet.clone();
         (addr, body, chksum)
@@ -134,9 +134,10 @@ async fn process_client(mut stream: TcpStream) -> bool {
                 );
                 stream.shutdown(Shutdown::Both).unwrap();
                 return false;
-            } else if size == 4 {
+            } else if size == 5 {
                 let data = &data[0..size];
                 let mut byte_string = client_handler.to_bytes(data);
+                // println!("{:?}", byte_string);
                 // first check chksum
                 if !client_handler.check_chksum(&byte_string) {
                     // handle what happens if checksum comes back wrong
@@ -170,7 +171,7 @@ async fn process_client(mut stream: TcpStream) -> bool {
                             client_handler.send(&mut stream, Commands::NACK).await;
                         }
                     }
-                    _ => panic!("This shouldn't happen"),
+                    _ => panic!(format!("This shouldn't happen; packet: {:?}", byte_string)),
                 };
 
             // check to make sure chksum if correct...
@@ -187,6 +188,10 @@ async fn process_client(mut stream: TcpStream) -> bool {
                     .change_switch(first_switch)
                     .expect("Could not change first switch");
                 client_handler.send(&mut stream, Commands::NACK).await;
+            }
+
+            if msg_string == "quit_server" {
+                return false;
             }
 
             true
@@ -221,20 +226,5 @@ async fn main() -> Result<(), Box<dyn Error>> {
             process_client(stream).await;
         });
     }
-    // match stream {
-    //     Ok(mut stream) => {
-    //         println!("New connection: {}", stream.peer_addr().unwrap());
-    //         thread::spawn(move || {
-    //             // connection succeeded
-    //             stream.write(b"Server connected succesfully\r\n").unwrap();
-
-    //             // create new statemachine for client
-    //             process_client(stream)
-    //         });
-    //     }
-    //     Err(e) => {
-    //         println!("Error: {}", e);
-    //         /* connection failed */
-    //     }
-    // }
+    println!("Shutting down server");
 }

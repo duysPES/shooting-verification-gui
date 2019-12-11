@@ -137,6 +137,11 @@ impl Switch {
         let addr = BytesMut::from(&self.id.to_be_bytes()[..]);
 
         packet.extend_from_slice(&addr[..]);
+        //hackish thing to add an extra byte... had to do this in order
+        // to avoid refactoring the whole damn thing
+        let extra_byte: u8 = 0x12;
+        packet.extend_from_slice(&[extra_byte]);
+
         packet.extend_from_slice(&cmd[..]);
 
         let chksum = self.gen_chksum(&packet);

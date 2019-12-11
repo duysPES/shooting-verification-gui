@@ -63,7 +63,7 @@ class Awaiting(State):
         # 2) ACK => Return status of GoIdle
         # 3) LONG LIST OF BYTES => GetStatus
         package = recv_data.package
-        print("Package: ", hex(package[0]), len(package))
+        print("Package: ", package.hex(), len(package))
 
         if len(package) > 1:
             # return msg for switch responding with get_status
@@ -71,17 +71,17 @@ class Awaiting(State):
 
         elif len(package) == 1:
             # could be ACK or NACK
-            if Commands.is_ack(package[0]):
+            if Commands.is_ack(package):
                 # Return msg for switch going idle
                 pass
-            elif Commands.is_nack(package[0]):
+            elif Commands.is_nack(package):
                 # switch is broadcasting
                 # either send switch straight to GetStatus
                 # or GoIdle
                 # FOR NOW - we will just ask for status, and move one
                 response_msg = recv_data.gen_package(
                     msg=Commands.SendStatus.value)
-                # print(response_msg)
+                print('response_msg', response_msg)
                 client.write(response_msg)
                 return self.next(SimStates.send_status)
 
