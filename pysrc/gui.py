@@ -11,13 +11,13 @@ from pysrc.thread import InfoType, ConnMode
 from collections import deque
 from pysrc.switch import Switch
 from pysrc.commands import Status, Commands
-import pysrc.logging as Log
+import pysrc.logging as log
 
 c = Config()
 
 sg.change_look_and_feel('GreenTan')
 
-Log.clear()
+log.Log.clear()
 class SSI:
     """
     Main Program handler. Controls GUI that users will be using
@@ -54,9 +54,9 @@ class SSI:
         input: str
         return: None
         ```
-        Wrapper around Log object to verify that output from GUI is going to gui.log
+        Wrapper around log object to verify that output from GUI is going to gui.log
         """
-        Log.log(status)(msg, Log.LogType.gui)
+        log.log(status)(msg, log.LogType.gui)
 
     def send_to_multiline(self, widget, msg, clear=False):
         """
@@ -185,18 +185,22 @@ class SSI:
                         break
 
             if 'Run' == values['main_menu']:
-                SSI.log('Beginning simulation')
+                self.log('Beginning simulation', 'info')
                 simulator = Simulator(self)
                 simulator.run()
 
             if 'button_inventory' in event:
-                SSI.log("Beginning inventory run")
+                self.log("Beginning inventory run", 'info')
                 inventory = True
                 self.set_window_title()
+
+                expected_switches = self.read_expected()
+                self.send_to_debug(f"Expecting {expected_switches} switches..")
+
                 with LISC(port='/dev/ttyS6', baudrate=9600, timeout=0) as lisc:
-                    SSI.log("Spawning thread for inventory run")
+                    self.log("Spawning thread for inventory run", 'info')
                     thread = Process(target=lisc.do_inventory,
-                                     args=(self.inventory_queue, ))
+                                     args=(self.inventory_queue, expected_switches))
                     thread.start()
                     # thread.join()
 
@@ -249,6 +253,24 @@ class SSI:
         self.window.close()
         self.log("Main Gui loop closing", "info")
 
+    def read_expected(self):
+        """
+        ```python
+        input: None
+        return: int
+        ```
+        Helper method that returns the number for anticipated switches
+        from label. Attempts to convert to int, with some error checking.
+        If it fails the conversion it will by default return `1`
+        """
+        num = self.window['label_expected_amount'].DisplayText
+        try:
+            num = int(num)
+        except ValueError:
+            num = 1
+
+        return num
+
     def send_mode(self, mode, payload):
         """
         ```
@@ -261,6 +283,7 @@ class SSI:
         within the main gui based on Connection Mode and InfoTypes
         found in packets.
         """
+        print('mode', mode)
         if mode == ConnMode.DEBUG:
             self.send_to_debug(msg=payload, clear=False)
         elif mode == ConnMode.MAIN:
@@ -280,7 +303,6 @@ class SSI:
                 thread supplies an invalid enum type, mode: {}
                 """.format(mode)
             self.log(errmsg, 'error')
-            success = False
                 
             
 

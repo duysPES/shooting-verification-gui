@@ -46,10 +46,10 @@ class LISC(serial.Serial):
 
         log.log(status)(msg=msg, to=log.LogType.gui)
 
-    def do_inventory(self, sender):
+    def do_inventory(self, sender, num_switches):
         """
         ```
-        input: queue.Queue
+        input: queue.Queue, int
         return: None
         ```
         The main inventory protocol of the LISC.
@@ -65,13 +65,12 @@ class LISC(serial.Serial):
         self.package.set_sender(sender)
         self.package.debug("Resetting LISC")
         self.reset()
-        self.flushInput()
-        self.flushOutput()
+
         # response = self.read_serial(lisc)
-        for i in range(3):
+        for i in range(num_switches):
             # listen for broadcast address
             broadcast_response = self.listen()
-            self.log(f"Broadcast Address: 0x{broadcast_response}", 'warning')
+            self.log(f"Broadcast Address: 0x{broadcast_response.hex()}", 'info')
 
             # internally create a switch obj
             switch = Switch(position=i + 1, raw=broadcast_response)
@@ -120,7 +119,7 @@ class LISC(serial.Serial):
             # attempt to write to stream
             self.write(msg)
             response = self.listen()
-
+            self.log(f"Raw response: {response.hex()}", 'info')
             body = response[3:-1]
 
             # checking checksum

@@ -137,7 +137,7 @@ class SimClient:
         """
         exe = os.getcwd() + "/sf_sim/target/release/sim"
         self.server = subprocess.Popen(["{}".format(exe)])
-        self.log(msg=self.server.stdout, 'info')
+        self.log(self.server.stdout, 'info')
 
     def stop_server(self):
         """
