@@ -1,6 +1,6 @@
-from pysrc.gui import SimpleShootingInterface
+from pysrc.gui import SSI
 
 if __name__ == "__main__":
 
-    gui = SimpleShootingInterface()
+    gui = SSI()
     gui.loop()

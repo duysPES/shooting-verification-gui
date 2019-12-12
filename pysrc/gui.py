@@ -11,13 +11,14 @@ from pysrc.thread import InfoType, ConnMode
 from collections import deque
 from pysrc.switch import Switch
 from pysrc.commands import Status, Commands
+import pysrc.logging as Log
 
 c = Config()
 
 sg.change_look_and_feel('GreenTan')
 
-
-class SimpleShootingInterface:
+Log.clear()
+class SSI:
     """
     Main Program handler. Controls GUI that users will be using
     to inventory addressable switches, and running switch simulator
@@ -45,6 +46,17 @@ class SimpleShootingInterface:
                                       str(c.ssi("height"))),
                                 finalize=True)
         self.set_window_title()
+
+    @staticmethod
+    def log(msg, status='info'):
+        """
+        ```python
+        input: str
+        return: None
+        ```
+        Wrapper around Log object to verify that output from GUI is going to gui.log
+        """
+        Log.log(status)(msg, Log.LogType.gui)
 
     def send_to_multiline(self, widget, msg, clear=False):
         """
@@ -84,7 +96,6 @@ class SimpleShootingInterface:
         try:
             ele.update(msg + '\n', append=append)
         except Exception:
-            print("label here", msg, ele)
             ele.DisplayText = msg
 
     def send_to_main(self, msg, clear=False):
@@ -149,12 +160,11 @@ class SimpleShootingInterface:
         """
 
         inventory = False
-        vol_temp_window = None
 
         while True:
             event, values = self.window.read(timeout=c.ssi('async_timeout'))
             if event != '__TIMEOUT__':
-                print(event, values)
+                pass
             if event in (None, 'Quit'):
                 break
 
@@ -163,12 +173,11 @@ class SimpleShootingInterface:
                 layout = [[
                     sg.Input("{}".format(cur_val), focus=True, key='input_box')
                 ], [sg.Button('Exit', bind_return_key=True)]]
-                win2 = sg.Window("Edit Expected Amount")
+                win2 = sg.Window("Edit Expected Amount", layout=layout)
 
                 while True:
                     ev2, vals2 = win2.read()
                     if ev2 is None or ev2 == 'Exit':
-                        print(ev2, vals2)
 
                         self.window['label_expected_amount'](str(
                             vals2['input_box']))
@@ -176,13 +185,16 @@ class SimpleShootingInterface:
                         break
 
             if 'Run' == values['main_menu']:
+                SSI.log('Beginning simulation')
                 simulator = Simulator(self)
                 simulator.run()
 
             if 'button_inventory' in event:
+                SSI.log("Beginning inventory run")
                 inventory = True
                 self.set_window_title()
                 with LISC(port='/dev/ttyS6', baudrate=9600, timeout=0) as lisc:
+                    SSI.log("Spawning thread for inventory run")
                     thread = Process(target=lisc.do_inventory,
                                      args=(self.inventory_queue, ))
                     thread.start()
@@ -193,15 +205,28 @@ class SimpleShootingInterface:
                     # returns a deque object with information
                     msgs = self.inventory_queue.get_nowait()
                     if not isinstance(msgs, deque):
-                        raise ValueError(
-                            "Message from queue is not ConnPackage obj")
+                        """
+                        This piece of code should never run, if it does it is a programmer induced bug
+                        and not the users fault. msgs is in incorrect format, the entire program will
+                        not work as intended. Instead of exiting the programming, simply stop the inventory
+                        process and default back to normal GUI.
+                        """
+                        inventory = False # turn off inventory
+                        errmsg = \
+                        """
+                        Message from queue is not a ConnPackage, fatal error. Program will
+                        not work as expected
+                        """
+                        self.log(errmsg, 'error')
 
                     if len(msgs) > 0:
 
                         info_type, mode, msg = msgs
                         if info_type == InfoType.KILL:
-                            self.send_mode(mode, "Done with Inventory")
+                            msg = "Done with inventory process"
+                            self.send_mode(mode, msg)
                             inventory = False
+                            self.log(msg, "info")
 
                         if info_type == InfoType.SWITCH:
 
@@ -222,6 +247,7 @@ class SimpleShootingInterface:
                     pass
 
         self.window.close()
+        self.log("Main Gui loop closing", "info")
 
     def send_mode(self, mode, payload):
         """
@@ -235,7 +261,6 @@ class SimpleShootingInterface:
         within the main gui based on Connection Mode and InfoTypes
         found in packets.
         """
-
         if mode == ConnMode.DEBUG:
             self.send_to_debug(msg=payload, clear=False)
         elif mode == ConnMode.MAIN:
@@ -249,6 +274,14 @@ class SimpleShootingInterface:
             msg = "{}V, {}C".format(voltage, temp)
             self.set_window_title(msg=msg)
         else:
-            raise TypeError("Not a valid enum state")
+            errmsg = \
+                """
+                This block should never run. Input ConnMode from 
+                thread supplies an invalid enum type, mode: {}
+                """.format(mode)
+            self.log(errmsg, 'error')
+            success = False
+                
+            
 
 

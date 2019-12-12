@@ -10,7 +10,7 @@ import subprocess
 import time
 import os
 import datetime
-from pysrc.logging import Log, LogType
+import pysrc.logging as log
 
 c = Config()
 
@@ -43,9 +43,18 @@ class SimClient:
         return self
 
     def __exit__(self, exc_type, exc_value, traceback):
-        # print('cleaning up resources')
         self.shutdown()
         self.stop_server()
+
+    def log(self, msg, status):
+        """
+        ```python
+        input: str, LogType
+        return: None
+        ```
+        Wrapper around log function for easy redirecting of server stdout to file.
+        """
+        log.log(status)(msg=msg, to=log.LogType.server)
 
     def connect(self):
         """
@@ -88,7 +97,6 @@ class SimClient:
             try:
 
                 d = self.socket.recv(16, socket.MSG_DONTWAIT)
-                print(d)
                 if len(d) == 0:
                     data = []
                     data.append(b'closed connection')
@@ -97,7 +105,6 @@ class SimClient:
                     data.append(d)
             except Exception:
                 end = time.time()
-        # print('data', data)
         try:
             return "".join([d.decode() for d in data])
         except UnicodeDecodeError:
@@ -123,16 +130,6 @@ class SimClient:
         """
         self.socket.sendall(msg)
 
-    def server_log(self, msg):
-        """
-        ```python
-        input: str
-        return: None
-        ```
-        Logs stdout from server to a file.
-        """
-        msg = "{} [SERVER] => {}".format(datetime.datetime.now().ctime(), msg)
-        Log.log(msg=msg, to=LogType.server)
 
     def start_server(self):
         """
@@ -140,14 +137,13 @@ class SimClient:
         """
         exe = os.getcwd() + "/sf_sim/target/release/sim"
         self.server = subprocess.Popen(["{}".format(exe)])
-        print(self.server.stdout)
+        self.log(msg=self.server.stdout, 'info')
 
     def stop_server(self):
         """
         Attempts to close server by sending a terminate signal
         """
         self.server.terminate()
-        print(self.server.stdout)
 
     def shutdown(self):
         """
@@ -204,6 +200,16 @@ class Simulator:
             layout)
 
 
+    def log(self, msg, status):
+        """
+        ```python
+        input: str, LogType
+        return: None
+        ```
+        Wrapper around log function for easy redirecting of server stdout to file.
+        """
+        log.log(status)(msg=msg, to=log.LogType.gui)
+
     def run(self):
         """
         The main event loop that is spawned from main gui.
@@ -228,16 +234,14 @@ class Simulator:
                 data = client.read(output=self.output)
 
                 if event is None or event == 'Exit' or data == 'closed connection':
-                    print("Remote host closed connection")
+                    self.log("Remote host closed connection", 'info')
                     self.window.close()
                     break
 
                 if isinstance(data, Switch):
                     # parses data and acts accordingly as well as changes to next
                     # state depending on incoming data
-                    # print(self.state_handler.current_state)
                     self.state_handler.execute(client, data, self)
-                    # print(self.state_handler.current_state)
                 elif len(data) > 0:
                     # here we can assume any other data send via socket relates to the status
                     # of which the sim switches are in.. the different modes [status, goidle]
@@ -245,7 +249,6 @@ class Simulator:
                     latest_switch = switches.latest_switch
                     msg = "[{}] {}".format(latest_switch, data)
                     self.server_mode(msg)
-                    print("From server: ", data)
 
     def output(self, msg, append=True):
         """
@@ -308,9 +311,7 @@ class Simulator:
         """
         status, msg = client.connect()
         if status:
-            print(msg)
             connection_status = client.read(delay=0.2, output=self.output)
-            print(connection_status)
             _, _ = self.window.read(timeout=self.gui_timeout)
             self.update_conn_status(connection_status)
             return True

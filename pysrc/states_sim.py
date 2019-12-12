@@ -1,7 +1,7 @@
 ## possible states
 from pysrc.switch import Switch, SWITCH_STATUS
 from pysrc.commands import Commands
-
+import pysrc.logging as log
 
 class SimStates:
     """
@@ -33,6 +33,9 @@ class State:
         """
         assert 0, "next not implemented"
 
+    def log(self, msg, status):
+        log.log(status)(msg=msg, to=log.LogType.gui)
+
 
 class SimStateMachine:
     """
@@ -53,7 +56,6 @@ class SimStateMachine:
         *each state will have different
         logic.*
         """
-        print(client, recv_data)
         self.current_state = self.current_state.run(client, recv_data, sim)
 
 
@@ -73,20 +75,16 @@ class Awaiting(State):
         checks to see if payload is either NACK/ACK and constructs the 
         GetStatus command.
         """
-        print("Waiting for incoming data")
+        self.log("Waiting for incoming data from server...", 'info')
 
         assert isinstance(recv_data,
                           Switch), "execuational data is not Switch object"
-        # # read from client
-        # print(recv_data.package, Commands.NACK,
-        #       Commands.is_nack(recv_data.package[0]))
-
         # three possibilities:
         # 1) NACK => broadcasting
         # 2) ACK => Return status of GoIdle
         # 3) LONG LIST OF BYTES => GetStatus
         package = recv_data.package
-        print("Package: ", package.hex(), len(package))
+        self.log(f"Package from server: {package.hex()}", 'info')
 
         if len(package) > 1:
             # return msg for switch responding with get_status
@@ -96,7 +94,7 @@ class Awaiting(State):
             # could be ACK or NACK
             if Commands.is_ack(package):
                 # Return msg for switch going idle
-                print("Switch going idle")
+                self.log("switch has gone idle", 'info')
 
             elif Commands.is_nack(package):
                 # switch is broadcasting
@@ -137,14 +135,11 @@ class SendStatus(State):
         Update incoming status information to status display widget
         Generate package command for switch to GoIdle
         """
-        print("Switch in Status Mode")
-        print(recv_data.package)
         output = sim.window.Element('ml_status')
 
         msg = "[{}]\n".format(recv_data.address)
         for idx, ele in enumerate(recv_data.package):
             msg += SWITCH_STATUS[idx].format(ele)
-        print(msg)
         output('')
         output(msg)
         response_msg = recv_data.gen_package(msg=Commands.GoInactive.value)
@@ -167,7 +162,6 @@ class SendIdle(State):
     """
     def run(self, client, recv_data, sim):
         # update gui and send command to server to go to next switch.
-        print("In Idle State")
         return self.next(SimStates.awaiting)
 
     def next(self, input):

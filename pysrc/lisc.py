@@ -4,7 +4,7 @@ import multiprocessing as mp
 from pysrc.switch import SwitchManager, Switch
 from pysrc.commands import Commands
 from pysrc.thread import ConnMode, InfoType, ConnPackage
-
+import pysrc.logging as log
 
 class LISC(serial.Serial):
     """
@@ -34,6 +34,17 @@ class LISC(serial.Serial):
     package object that zips all incoming reponses from switches in a compatible format 
     that is consumed by GUI at the end of the half-duplex sender
     """
+    def log(self, msg, status):
+        """
+        ```python
+        input: str, LogType
+        return: None
+        ```
+
+        Wrapper around log for quick logging api calls
+        """
+
+        log.log(status)(msg=msg, to=log.LogType.gui)
 
     def do_inventory(self, sender):
         """
@@ -54,11 +65,13 @@ class LISC(serial.Serial):
         self.package.set_sender(sender)
         self.package.debug("Resetting LISC")
         self.reset()
+        self.flushInput()
+        self.flushOutput()
         # response = self.read_serial(lisc)
         for i in range(3):
             # listen for broadcast address
             broadcast_response = self.listen()
-            print("broadcast ", broadcast_response.hex())
+            self.log(f"Broadcast Address: 0x{broadcast_response}", 'warning')
 
             # internally create a switch obj
             switch = Switch(position=i + 1, raw=broadcast_response)
@@ -187,9 +200,7 @@ class LISC(serial.Serial):
             calculated_chksum ^= data[idx]
 
         if calculated_chksum != supplied_chksum:
-
-            print("Checksums do not match: {}/{}".format(
-                calculated_chksum, supplied_chksum))
+            self.log(f"Checksums do not match: calc: {calculated_chksum} != provided: {supplied_chksum}", 'warning')
             return not good_data
 
         return good_data
