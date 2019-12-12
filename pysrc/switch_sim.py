@@ -16,9 +16,21 @@ c = Config()
 
 
 class SimClient:
+    """
+    A TCP client that connects to the spawned instance of the switch simulator.
+    This class handles all the send/recv protocol between the server
+    """
+    
     switch_counter = 0
+    """
+    This should actually be the reponsibility of the switch manager, need to refactor this.
+    """
+    
     switch_manager = SwitchManager()
-    max_timeout = 5
+    """
+    keeps track of the emulated switches coming from the simulator
+    """
+
 
     def __init__(self, server, port, max_timeout=60):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -36,7 +48,9 @@ class SimClient:
         self.stop_server()
 
     def connect(self):
-        # attempt to connect to supplied sim server
+        """
+        Attempts a connection to the server on designated port.
+        """
         start = time.time()
         elapsed_time = 0
 
@@ -53,7 +67,13 @@ class SimClient:
 
     def read(self, output, timeout=0.01, delay=0.0):
         """
-        Will return a switch object if successfuly,
+        ```python
+        input: sg.Element, float, float
+        return: str or Switch
+        ```
+        Reads from socket.
+
+        Returns a switch object if successfuly,
         otherwise will return "closed connection" object
         """
 
@@ -94,34 +114,84 @@ class SimClient:
         #     [d.decode() for d in data])
 
     def write(self, msg):
+        """
+        ```python
+        input: bytes
+        return: None
+        ```
+        Send a message to the server
+        """
         self.socket.sendall(msg)
 
-    def server_send(self, msg):
-            msg = "{} [SERVER] => {}".format(datetime.datetime.now().ctime(), msg)
-            Log.log(msg=msg, to=LogType.server)
+    def server_log(self, msg):
+        """
+        ```python
+        input: str
+        return: None
+        ```
+        Logs stdout from server to a file.
+        """
+        msg = "{} [SERVER] => {}".format(datetime.datetime.now().ctime(), msg)
+        Log.log(msg=msg, to=LogType.server)
 
     def start_server(self):
+        """
+        Attempts to run external binary that contains the server and switch simulator
+        """
         exe = os.getcwd() + "/sf_sim/target/release/sim"
         self.server = subprocess.Popen(["{}".format(exe)])
         print(self.server.stdout)
 
     def stop_server(self):
-        # physically send ctrl-c to program.
+        """
+        Attempts to close server by sending a terminate signal
+        """
         self.server.terminate()
         print(self.server.stdout)
 
     def shutdown(self):
+        """
+        Shuts down internal states that relate to connecting to the server
+        """
         self.socket.shutdown(socket.SHUT_RDWR)
         self.socket.close()
 
 
 class Simulator:
+    """
+    Handles the GUI layout and interacts with the SimClient
+    to redirect output from the server to the appropriate widgets
+    """
     server = None
+    """
+    SimClient instance
+    """
+
     host = None
+    """
+    host where server will connect
+    """
+
     port = None
+    """
+    port where server will connect
+    """
+
     window = None
+    """
+    main sg.Window object for simulation gui
+    """
+
     gui_timeout = 0.1
+    """
+    async timeout for gui read/eval loop
+    """
+
     state_handler = None
+    """
+    a handle to the state machine that directs
+    the different states each incoming switch is in.
+    """
 
     def __init__(self, gui):
         self.gui = gui
@@ -135,7 +205,9 @@ class Simulator:
 
 
     def run(self):
-        self.start_server()
+        """
+        The main event loop that is spawned from main gui.
+        """
         time.sleep(0.1)
         with SimClient(server=self.host, port=self.port) as client:
             connected = False
@@ -174,26 +246,66 @@ class Simulator:
                     msg = "[{}] {}".format(latest_switch, data)
                     self.server_mode(msg)
                     print("From server: ", data)
-        self.stop_server()
 
     def output(self, msg, append=True):
+        """
+        ```python
+        input: str, bool
+        return: None
+        ```
+
+        update the main sim multiline widget.
+        """
         self.gui.write_element(self.window, 'ml_main', msg, append)
         
 
     def status_output(self, msg):
+        """
+        ```python
+        intput: str
+        return: None
+        ```
+        update information to the status multiline widget
+        """
         self.window.Element('ml_status')(msg)
 
     def clear(self):
+        """
+        clear multiline widgets
+        """
         self.window.Element('ml_status')('')
         self.window.Element('ml_main')('')
 
     def server_mode(self, msg):
+        """
+        ```python
+        input: str
+        return: None
+        ```
+        update the current emulated mode of the switches from the simulation server
+        """
         self.window.Element('label_server_mode')(msg)
 
     def update_conn_status(self, msg):
+        """
+        ```python
+        input: str
+        return: None
+        ```
+        update the connection status of the server
+        """
         self.window.Element('label_connection_status')(msg)
 
     def attempt_connection(self, client):
+        """
+        ```python
+        input: SimClient
+        return: bool
+        ```
+
+        Attempts connection to the server and immediately reads from socket which contains
+        server connection status
+        """
         status, msg = client.connect()
         if status:
             print(msg)
