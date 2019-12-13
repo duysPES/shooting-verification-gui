@@ -11,13 +11,15 @@ from pysrc.thread import InfoType, ConnMode
 from collections import deque
 from pysrc.switch import Switch
 from pysrc.commands import Status, Commands
-import pysrc.logging as log
+import pysrc.log as log
 
 c = Config()
 
 sg.change_look_and_feel('GreenTan')
 
 log.Log.clear()
+
+
 class SSI:
     """
     Main Program handler. Controls GUI that users will be using
@@ -35,7 +37,6 @@ class SSI:
     entire inventory process on a seperate thread. This allows for communication
     back to main thread.
     """
-
     def __init__(self):
         self.layout = self.lo.main_layout()
         self.window = sg.Window("",
@@ -197,12 +198,14 @@ class SSI:
                 expected_switches = self.read_expected()
                 self.send_to_debug(f"Expecting {expected_switches} switches..")
 
-                with LISC(port='/dev/ttyS6', baudrate=9600, timeout=0) as lisc:
+                port = str(c.lisc('port'))
+                baudrate = int(c.lisc('baudrate'))
+                with LISC(port=port, baudrate=baudrate, timeout=0) as lisc:
                     self.log("Spawning thread for inventory run", 'info')
                     thread = Process(target=lisc.do_inventory,
-                                     args=(self.inventory_queue, expected_switches))
+                                     args=(self.inventory_queue,
+                                           expected_switches))
                     thread.start()
-                    # thread.join()
 
             if inventory:
                 try:
@@ -215,7 +218,7 @@ class SSI:
                         not work as intended. Instead of exiting the programming, simply stop the inventory
                         process and default back to normal GUI.
                         """
-                        inventory = False # turn off inventory
+                        inventory = False  # turn off inventory
                         errmsg = \
                         """
                         Message from queue is not a ConnPackage, fatal error. Program will
@@ -303,7 +306,3 @@ class SSI:
                 thread supplies an invalid enum type, mode: {}
                 """.format(mode)
             self.log(errmsg, 'error')
-                
-            
-
-

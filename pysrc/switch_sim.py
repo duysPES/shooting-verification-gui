@@ -10,7 +10,7 @@ import subprocess
 import time
 import os
 import datetime
-import pysrc.logging as log
+import pysrc.log as log
 
 c = Config()
 
@@ -20,18 +20,16 @@ class SimClient:
     A TCP client that connects to the spawned instance of the switch simulator.
     This class handles all the send/recv protocol between the server
     """
-    
+
     switch_counter = 0
     """
     This should actually be the reponsibility of the switch manager, need to refactor this.
     """
-    
+
     switch_manager = SwitchManager()
     """
     keeps track of the emulated switches coming from the simulator
     """
-
-
     def __init__(self, server, port, max_timeout=60):
         self.socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         self.server = server
@@ -130,7 +128,6 @@ class SimClient:
         """
         self.socket.sendall(msg)
 
-
     def start_server(self):
         """
         Attempts to run external binary that contains the server and switch simulator
@@ -188,7 +185,6 @@ class Simulator:
     a handle to the state machine that directs
     the different states each incoming switch is in.
     """
-
     def __init__(self, gui):
         self.gui = gui
         self.host = 'localhost'
@@ -198,7 +194,6 @@ class Simulator:
         self.window = sg.Window(
             'Switch Simulator Server {}'.format(c.sim_server("version")),
             layout)
-
 
     def log(self, msg, status):
         """
@@ -260,7 +255,6 @@ class Simulator:
         update the main sim multiline widget.
         """
         self.gui.write_element(self.window, 'ml_main', msg, append)
-        
 
     def status_output(self, msg):
         """

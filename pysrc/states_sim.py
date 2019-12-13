@@ -1,7 +1,8 @@
 ## possible states
 from pysrc.switch import Switch, SWITCH_STATUS
 from pysrc.commands import Commands
-import pysrc.logging as log
+import pysrc.log as log
+
 
 class SimStates:
     """

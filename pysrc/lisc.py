@@ -4,7 +4,8 @@ import multiprocessing as mp
 from pysrc.switch import SwitchManager, Switch
 from pysrc.commands import Commands
 from pysrc.thread import ConnMode, InfoType, ConnPackage
-import pysrc.logging as log
+import pysrc.log as log
+
 
 class LISC(serial.Serial):
     """
@@ -70,7 +71,8 @@ class LISC(serial.Serial):
         for i in range(num_switches):
             # listen for broadcast address
             broadcast_response = self.listen()
-            self.log(f"Broadcast Address: 0x{broadcast_response.hex()}", 'info')
+            self.log(f"Broadcast Address: 0x{broadcast_response.hex()}",
+                     'info')
 
             # internally create a switch obj
             switch = Switch(position=i + 1, raw=broadcast_response)
@@ -173,7 +175,7 @@ class LISC(serial.Serial):
             if in_waiting > 0:
                 buf += self.read(in_waiting)
                 now = time.time()
-            
+
             # if len(buf) >= 5:
             #     break
 
@@ -199,7 +201,9 @@ class LISC(serial.Serial):
             calculated_chksum ^= data[idx]
 
         if calculated_chksum != supplied_chksum:
-            self.log(f"Checksums do not match: calc: {calculated_chksum} != provided: {supplied_chksum}", 'warning')
+            self.log(
+                f"Checksums do not match: calc: {calculated_chksum} != provided: {supplied_chksum}",
+                'warning')
             return not good_data
 
         return good_data

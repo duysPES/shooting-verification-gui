@@ -4,7 +4,7 @@ import os
 
 from pysrc.errors import NotValidSwitchObj, SwitchDoesNotExist
 import struct
-import pysrc.logging as log
+import pysrc.log as log
 
 # volts: u8,
 # temp: u8,
@@ -42,7 +42,8 @@ class SwitchManager:
             self.switches.pop(sw.address)
             self.__addr_list.remove(sw.address)
         except SwitchDoesNotExist:
-            self.log(f"Unable to remove switch, doesn't exist in manager", 'warning')
+            self.log(f"Unable to remove switch, doesn't exist in manager",
+                     'warning')
 
     @property
     def latest_switch(self):
@@ -176,7 +177,6 @@ class Switch:
 ######## TEST MODULES ###########
 __addr = b'\xff\x1a#\x15\xd3'
 __status = b'\x0b\xd0\xb65\x1c\x05\x01\x00\x00(h'
-
 
 
 def __test_to_int_from_bytes():
