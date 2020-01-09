@@ -3,6 +3,7 @@ from pysrc.config import Config
 from pysrc.layout import LayOuts
 import serial
 from pysrc.lisc import LISC
+import pysrc.lisc_server as lisc_server
 from pysrc.switch_sim import SimClient, Simulator
 from pysrc.states_sim import SimStates, SimStateMachine
 from multiprocessing import Process, Queue
@@ -218,11 +219,11 @@ class SSI:
 
                 port = str(c.lisc('port'))
                 baudrate = int(c.lisc('baudrate'))
+                msg = f"START,{expected_switches}".encode()
                 with LISC(port=port, baudrate=baudrate, timeout=3) as lisc:
                     self.log("Spawning thread for inventory run", 'info')
                     thread = Process(target=lisc.do_inventory,
-                                     args=(self.inventory_queue,
-                                           expected_switches))
+                                     args=(self.inventory_queue, msg))
                     thread.start()
 
             if inventory:
