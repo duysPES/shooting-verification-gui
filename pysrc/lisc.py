@@ -78,8 +78,8 @@ class LISC(serial.Serial):
             if tries == 0:
                 errmsg = f"Max attempts reached. Can't detect broadcasting of switch. Aborting inventory protocol."
                 self.log(errmsg, 'error')
-                self.package.done()
                 self.package.debug(errmsg)
+                self.package.done()
                 raise Exception(errmsg)
 
             self.log(f"Listening for broadcast [{tries}]", 'info')
