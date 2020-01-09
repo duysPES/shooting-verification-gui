@@ -76,10 +76,11 @@ class LISC(serial.Serial):
 
         def listen_broadcast(tries=5, length=5):
             if tries == 0:
-                self.log("Can't find switch. Aborting inventory", 'error')
+                errmsg = f"Can't detect broadcasting of switch. Abortin inventory protocol with {tries} attempts."
+                self.log(errmsg, 'error')
                 self.package.done()
-                raise Exception(
-                    "Couldn't continue inventory, switches not found.")
+                self.package.debug(errmsg)
+                raise Exception(errmsg)
 
             self.log(f"Listening for broadcast [{tries}]", 'info')
             resp = self.listen(length)
