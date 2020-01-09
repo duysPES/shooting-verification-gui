@@ -76,7 +76,7 @@ class LISC(serial.Serial):
 
         def listen_broadcast(tries=5, length=5):
             if tries == 0:
-                errmsg = f"Can't detect broadcasting of switch. Abortin inventory protocol with {tries} attempts."
+                errmsg = f"Max attempts reached. Can't detect broadcasting of switch. Aborting inventory protocol."
                 self.log(errmsg, 'error')
                 self.package.done()
                 self.package.debug(errmsg)
