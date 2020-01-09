@@ -141,7 +141,7 @@ class LISC(serial.Serial):
 
             # attempt to write to stream
             to_send, resp_len = msg
-
+            self.log(f"Sending `{to_send.hex()}`", 'info')
             self.write(to_send)
             response = self.listen(resp_len, clear_buffer=clear_buffer)
             self.log(f"Raw response: {response.hex()}", 'info')
