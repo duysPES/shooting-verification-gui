@@ -62,42 +62,63 @@ class LISC(serial.Serial):
         3. Send GoInactive
 
         """
-        # package = ConnPackage(queue)
+        def send_recieve(switch, cmd, clear_buffer=True, update=True):
+            is_status = True if cmd == Commands.SendStatus else False
+
+            cmd = cmd.value
+            cmd = (switch.gen_package(cmd[0]), cmd[1])
+            resp = self.send(cmd, clear_buffer=clear_buffer)
+            if update:
+                self.switch_manager.update(switch, resp)
+
+            if is_status:
+                self.package.switch_status(switch)
+
+        def listen_broadcast(tries=5, length=5):
+            if tries == 0:
+                self.log("Can't find switch. Aborting inventory", 'error')
+                self.package.done()
+                raise Exception(
+                    "Couldn't continue inventory, switches not found.")
+
+            self.log(f"Listening for broadcast [{tries}]", 'info')
+            resp = self.listen(length)
+            print(resp.hex(), len(resp))
+            if len(resp) == 5:
+                return resp
+            else:
+                tries -= 1
+                listen_broadcast(tries=tries)
+
         self.package.set_sender(sender)
         self.package.debug("Resetting LISC")
         self.reset()
 
-        # response = self.read_serial(lisc)
         for i in range(num_switches):
             # listen for broadcast address
-            broadcast_response = self.listen()
+            broadcast_response = listen_broadcast()
+
             self.log(f"Broadcast Address: 0x{broadcast_response.hex()}",
                      'info')
-
-            # internally create a switch obj
             switch = Switch(position=i + 1, raw=broadcast_response)
             self.package.switch(switch)  # sending switch contents via sender
             self.switch_manager.add(switch)
+            self.package.debug(f"Found switch: {switch.address}")
 
-            status_cmd = switch.gen_package(Commands.SendStatus.value)
-            self.package.debug("Sending command: {}".format(status_cmd.hex()))
-            response = self.send(status_cmd)
-            self.package.debug("Response: {}".format(response.hex()))
-            self.switch_manager.update(switch, response)
-            self.package.switch_status(switch)
+            # Get Status and process
+            send_recieve(switch, Commands.SendStatus, update=True)
 
-            go_inactive = switch.gen_package(Commands.GoInactive.value)
-            self.package.debug("Sending command: {}".format(go_inactive.hex()))
-            response = self.send(go_inactive)
-            self.package.debug("Response: {}".format(response.hex()))
+            # Send GoInactive and process
+            send_recieve(switch,
+                         Commands.GoInactive,
+                         update=True,
+                         clear_buffer=False)
 
-            self.switch_manager.update(switch, response)
-            # self.package.switch(switch)
             time.sleep(2)
 
         self.package.done()
 
-    def send(self, msg, tries=5):
+    def send(self, msg, tries=5, clear_buffer=True):
         """
         ```
         input: bytes, int
@@ -119,35 +140,46 @@ class LISC(serial.Serial):
                 raise serial.SerialException(err)
 
             # attempt to write to stream
-            self.write(msg)
-            response = self.listen()
+            to_send, resp_len = msg
+
+            self.write(to_send)
+            response = self.listen(resp_len, clear_buffer=clear_buffer)
             self.log(f"Raw response: {response.hex()}", 'info')
             body = response[3:-1]
 
             # checking checksum
-            if not self.chksum_ok(msg):
+            if not self.chksum_ok(to_send):
                 attempt += 1
                 self.package.debug("Chksum incorrect")
                 continue
 
             # most likely a successful attempt, if it passes
             if len(body) > 1:
-                self.package.debug("Receiving status message")
+                self.package.debug(
+                    f"Receiving status message, {response.hex()}")
                 break
             elif len(body) == 1:
-                if body == Commands.ACK.value:
+                if body == Commands.ACK.value[0]:
                     self.package.debug("ACK Recieved")
                     break
-                else:
+
+                if body == Commands.NACK.value[0]:
                     self.package.debug("NACK recieved trying again..")
                     attempt += 1
                     continue
+                else:
+                    self.package.debug(
+                        f"Found something else: {response.hex()}, body {body.hex()}"
+                    )
+                    attempt += 1
+                    continue
             else:
+                print(f"else {response.hex()}")
                 attempt += 1
 
         return response
 
-    def listen(self, timeout=3, tries=5):
+    def listen(self, n, clear_buffer=True):
         '''
         ```
         input: int, int
@@ -167,19 +199,25 @@ class LISC(serial.Serial):
         
      
         '''
-        now = time.time()
-        buf = b""
+        if clear_buffer:
+            self.read(self.inWaiting())
 
-        while time.time() - now <= timeout:
-            in_waiting = self.inWaiting()
-            if in_waiting > 0:
-                buf += self.read(in_waiting)
-                now = time.time()
+        return self.read(n)
+        # now = time.time()
+        # buf = b""
+        # n = self.inWaiting()
 
-            # if len(buf) >= 5:
-            #     break
+        # tracker = ""
 
-        return buf
+        # while time.time() - now <= timeout:
+        #     in_waiting = self.inWaiting()
+        #     if in_waiting > 0:
+        #         tracker += " . " * in_waiting
+        #         buf += self.read(in_waiting)
+        #         now = time.time()
+
+        # print(tracker)
+        # return buf
 
     def chksum_ok(self, data):
         """

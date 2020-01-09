@@ -4,46 +4,44 @@ from enum import Enum
 class Commands(Enum):
     """
     Enum that holds all supported commands of
-    Pioneer's Addressable Switches, along with byte values
-    of each.
+    Pioneer's Addressable Switches, along with byte values and
+    response length for each.
     """
 
-    ACK = b"\x06"
+    ACK = (b"\x06", -1)
     """
     Acknowledgement.
     """
 
-    NACK = b"\x15"
+    NACK = (b"\x15", -1)
     """
     Not Acknowledged, mainly used when something
     went wrong
     """
 
-    GoInactive = b"\x1e"
+    GoInactive = (b"\x1e", 5)
     """
     Command to put addressed switch into low power
     mode and allow pass-thru to next switch in chain
     """
-    SendStatus = b"\x05"
+    SendStatus = (b"\x05", 11)
     """
     Command that is used for switch to report
     debug information.
     """
-
-    
     @staticmethod
     def is_ack(msg):
         """
         Helper method to determine if msg is ACK
         """
-        return Commands.ACK.value == msg
+        return Commands.ACK.value[0] == msg
 
     @staticmethod
     def is_nack(msg):
         """
         Helper method to determine if msg is NACK
         """
-        return Commands.NACK.value == msg
+        return Commands.NACK.value[0] == msg
 
 
 class StatusFields:
@@ -84,7 +82,6 @@ class StatusFields:
 
     *(when switch goes into `Fire` mode this value will increase by 1)*
     """
-
     def __init__(self):
         self.all_fields = [self.V, self.T, self.C, self.PE, self.CE, self.F]
 
@@ -160,7 +157,6 @@ class Status:
     '''
     ```
     """
-
     def __init__(self, body):
         self.body = body
 

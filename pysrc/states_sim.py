@@ -103,7 +103,7 @@ class Awaiting(State):
                 # or GoIdle
                 # FOR NOW - we will just ask for status, and move one
                 response_msg = recv_data.gen_package(
-                    msg=Commands.SendStatus.value)
+                    msg=Commands.SendStatus.value[0])
 
                 client.write(response_msg)
                 return self.next(SimStates.send_status)
@@ -143,7 +143,7 @@ class SendStatus(State):
             msg += SWITCH_STATUS[idx].format(ele)
         output('')
         output(msg)
-        response_msg = recv_data.gen_package(msg=Commands.GoInactive.value)
+        response_msg = recv_data.gen_package(msg=Commands.GoInactive.value[0])
         client.write(response_msg)
         return self.next(SimStates.send_idle)
 

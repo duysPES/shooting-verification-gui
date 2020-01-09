@@ -82,6 +82,15 @@ class SSI:
             new_string = current + str(msg)
             widget(new_string)
 
+    def reset_elements(self):
+        """
+        resets all elements to their default values
+        """
+
+        self.send_to_main("", clear=True)
+        self.send_to_debug("", clear=True)
+        self.update_anticipated(0)
+
     def write_element(self, window, key, msg, append=True):
         """
         ```
@@ -162,6 +171,13 @@ class SSI:
 
         inventory = False
 
+        # set both multiline elements to autoscroll
+        self.window.FindElement(
+            key='multiline_default_output').Autoscroll = True
+
+        self.window.FindElement(
+            key='multiline_switch_canvas').Autoscroll = True
+
         while True:
             event, values = self.window.read(timeout=c.ssi('async_timeout'))
             if event != '__TIMEOUT__':
@@ -191,6 +207,8 @@ class SSI:
                 simulator.run()
 
             if 'button_inventory' in event:
+                # clear elements
+
                 self.log("Beginning inventory run", 'info')
                 inventory = True
                 self.set_window_title()
@@ -200,7 +218,7 @@ class SSI:
 
                 port = str(c.lisc('port'))
                 baudrate = int(c.lisc('baudrate'))
-                with LISC(port=port, baudrate=baudrate, timeout=0) as lisc:
+                with LISC(port=port, baudrate=baudrate, timeout=3) as lisc:
                     self.log("Spawning thread for inventory run", 'info')
                     thread = Process(target=lisc.do_inventory,
                                      args=(self.inventory_queue,
@@ -226,7 +244,7 @@ class SSI:
                         """
                         self.log(errmsg, 'error')
 
-                    if len(msgs) > 0:
+                    elif len(msgs) > 0:
 
                         info_type, mode, msg = msgs
                         if info_type == InfoType.KILL:
@@ -249,6 +267,10 @@ class SSI:
 
                         if info_type == InfoType.OTHER:
                             self.send_mode(mode, msg)
+
+                    else:
+                        # here for brevity
+                        pass
 
                 except Exception:
                     pass
@@ -286,17 +308,15 @@ class SSI:
         within the main gui based on Connection Mode and InfoTypes
         found in packets.
         """
-        print('mode', mode)
         if mode == ConnMode.DEBUG:
             self.send_to_debug(msg=payload, clear=False)
         elif mode == ConnMode.MAIN:
             self.send_to_main(msg=payload, clear=False)
 
         elif mode == ConnMode.STATUS:
-            status = Status(status)
+            status = Status(payload)
             voltage = status.voltage
             temp = status.temp
-
             msg = "{}V, {}C".format(voltage, temp)
             self.set_window_title(msg=msg)
         else:
