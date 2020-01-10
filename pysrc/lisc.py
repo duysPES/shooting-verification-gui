@@ -1,5 +1,5 @@
-import sys
-sys.path.append("/home/duys/shooting-verification-gui")
+import sys, os
+sys.path.append(os.path.join(sys.path[0], '..'))
 
 import serial
 import time
