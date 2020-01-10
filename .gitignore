@@ -1,6 +1,7 @@
 sf_sim/target
 **/*.rs.bk
 *.pyc
+rusty-lisc/target/*
 
 
 #Added by cargo
