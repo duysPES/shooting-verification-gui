@@ -27,14 +27,18 @@ class Lisc:
     that is consumed by GUI at the end of the half-duplex sender
     """
 
-    lisc_ip = "127.0.0.1"
-    lisc_port = 8001
+    server_ip = "127.0.0.1"
+    server_port = 8001
     buffer_size = 1024
 
-    def __init__(self):
+    def __init__(self, lisc_port, lisc_ip):
+        self.lisc_port = lisc_port
+        self.lisc_ip = lisc_ip
+
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((self.lisc_ip, self.lisc_port))
+        s.connect((self.server_ip, self.server_port))
         s.settimeout(1)
+
         self.conn = s
 
     def log(self, msg, status):
@@ -61,8 +65,23 @@ class Lisc:
         `stop` signal is recieved
 
         """
+        self.package.set_sender(sender)
+        resp = self.send_recv(start_msg, timeout=1)
+        self.log(resp, 'info')
+        while 1:
+            resp = self.listen(timeout=1)
+            if resp == b"DONE":
+                self.package.done()
+                break
 
-        self.package.done()
+            elif resp != b"":
+                self.process(resp)
+
+    def process(self, data: bytes):
+        resp: list = data.decode().upper().split(",")
+        info, mode, msg = resp[0], resp[1], resp[2:]
+        msg = "".join(msg)
+        self.package.from_lisc_server(info, mode, msg)
 
     def send_recv(self, msg, timeout=1):
         self.send(msg)
@@ -103,20 +122,7 @@ class Lisc:
     def __exit__(self, exc_type, exc_val, exc_tb):
         pass
 
-    def test(self):
-        start_msg = b"START,6\r\n"
-        resp = lisc.send_recv(start_msg, timeout=1)
-        print(resp)
-        while 1:
-            resp = lisc.listen(timeout=1)
-            print(resp == b"DONE")
-            if resp == b"DONE":
-                print("Finishing up")
-                break
-            elif resp != b"":
-                print(resp)
-
 
 if __name__ == "__main__":
     with Lisc() as lisc:
-        lisc.test()
+        lisc.do_inventory()

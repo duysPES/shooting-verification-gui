@@ -23,6 +23,18 @@ class ConnMode(Enum):
     Status from switch
     """
 
+
+def str_to_conn(string):
+    if ConnMode.DEBUG.name == string.upper():
+        return ConnMode.DEBUG
+
+    if ConnMode.MAIN.name == string.upper():
+        return ConnMode.MAIN
+
+    if ConnMode.STATUS.name == string.upper():
+        return ConnMode.STATUS
+
+
 class InfoType(Enum):
     """
     Different info types. To tag which entity
@@ -42,6 +54,18 @@ class InfoType(Enum):
     """
     Entity sends SIGINT
     """
+
+
+def str_to_info(string):
+    if InfoType.SWITCH.name == string.upper():
+        return InfoType.SWITCH
+
+    if InfoType.OTHER.name == string.upper():
+        return InfoType.OTHER
+
+    if InfoType.KILL.name == string.upper():
+        return InfoType.KILL
+
 
 class ConnPackage:
     """
@@ -121,6 +145,22 @@ class ConnPackage:
         """
         packet = deque((infotype, mode, msg))
         return packet
+
+    def from_lisc_server(self, infotype, mode, msg):
+        """
+        ```python
+        input: InfoType, ConnMode, PyObj
+        return: Deque
+        ```
+
+        construct custom package and send immediately
+        """
+        print(infotype, mode)
+
+        infotype = str_to_info(infotype)
+        mode = str_to_conn(mode)
+        packet = deque((infotype, mode, msg))
+        self.send(packet)
 
     def switch(self, switch):
         """
