@@ -213,9 +213,12 @@ class SSI:
                         break
 
             if 'Run' == values['main_menu']:
-                self.log('Beginning simulation', 'info')
-                simulator = Simulator(self)
-                simulator.run()
+                self.send_to_debug(
+                    "Would normally start simulation server, but that has been disabled for now."
+                )
+                # self.log('Beginning simulation', 'info')
+                # simulator = Simulator(self)
+                # simulator.run()
 
             if 'button_inventory' in event:
                 # clear elements
