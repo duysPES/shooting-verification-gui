@@ -187,10 +187,21 @@ class SSI:
 
             if 'Change Expected Amount' in event:
                 cur_val = self.window['label_expected_amount'].DisplayText
-                layout = [[
-                    sg.Input("{}".format(cur_val), focus=True, key='input_box')
-                ], [sg.Button('Exit', bind_return_key=True)]]
-                win2 = sg.Window("Edit Expected Amount", layout=layout)
+                amnts = [x + 1 for x in range(30)]
+                layout = [
+                    [
+                        # sg.Input("{}".format(cur_val), focus=True, key='input_box')
+                        sg.Spin(amnts,
+                                initial_value=3,
+                                key='input_box',
+                                size=(50, 100),
+                                font=('any 24'))
+                    ],
+                    [sg.Button('Exit', bind_return_key=True)]
+                ]
+                win2 = sg.Window("Edit Expected Amount",
+                                 layout=layout,
+                                 size=(200, 100))
 
                 while True:
                     ev2, vals2 = win2.read()
