@@ -1,5 +1,6 @@
 import configparser
 # from dotted_dict import DottedDict
+import os, sys
 
 
 class Config(configparser.ConfigParser):
@@ -8,12 +9,11 @@ class Config(configparser.ConfigParser):
     directory.
     """
 
-    config_file_path = "./config.ini"
+    config_file_path = os.path.join(sys.path[0], 'config.ini')
     """
     relative path to config file based on 
     where main.py is called.
     """
-
     def __init__(self):
         super(Config, self).__init__(self)
         self.read(self.config_file_path)
@@ -36,7 +36,7 @@ class Config(configparser.ConfigParser):
         
         Input: str
         return: str
-        """      
+        """
         return self['LISC'][section]
 
     def sim_server(self, section):
@@ -45,7 +45,7 @@ class Config(configparser.ConfigParser):
         
         Input: str
         return: str
-        """ 
+        """
         return self['SIM_SERVER'][section]
 
     # def dotted_dict(self):
