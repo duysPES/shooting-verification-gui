@@ -62,6 +62,8 @@ class LISC(serial.Serial):
         3. Send GoInactive
 
         """
+        self.log("Starting inventory process", "info")
+
         def send_recieve(switch, cmd, clear_buffer=True, update=True):
             is_status = True if cmd == Commands.SendStatus else False
 
@@ -84,12 +86,12 @@ class LISC(serial.Serial):
 
             self.log(f"Listening for broadcast [{tries}]", 'info')
             resp = self.listen(length)
-            print(resp.hex(), len(resp))
-            if len(resp) == 5:
+            if len(resp) == 5 and resp is not None:
                 return resp
             else:
                 tries -= 1
-                listen_broadcast(tries=tries)
+                resp = listen_broadcast(tries=tries)
+            return resp
 
         self.package.set_sender(sender)
         self.package.debug("Resetting LISC")
@@ -98,7 +100,6 @@ class LISC(serial.Serial):
         for i in range(num_switches):
             # listen for broadcast address
             broadcast_response = listen_broadcast()
-
             self.log(f"Broadcast Address: 0x{broadcast_response.hex()}",
                      'info')
             switch = Switch(position=i + 1, raw=broadcast_response)
@@ -142,10 +143,14 @@ class LISC(serial.Serial):
 
             # attempt to write to stream
             to_send, resp_len = msg
-            self.log(f"Sending `{to_send.hex()}`", 'info')
+            self.log(
+                f"TX `{Commands.prettify(to_send)}`: {Commands.parse_packet(to_send)}",
+                'info')
             self.write(to_send)
             response = self.listen(resp_len, clear_buffer=clear_buffer)
-            self.log(f"Raw response: {response.hex()}", 'info')
+            self.log(
+                f"RX {Commands.prettify(response)}: {Commands.parse_packet(response)}",
+                'info')
             body = response[3:-1]
 
             # checking checksum
@@ -175,7 +180,6 @@ class LISC(serial.Serial):
                     attempt += 1
                     continue
             else:
-                print(f"else {response.hex()}")
                 attempt += 1
 
         return response

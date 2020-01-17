@@ -12,6 +12,7 @@ from collections import deque
 from pysrc.switch import Switch
 from pysrc.commands import Status, Commands
 import pysrc.log as log
+from pysrc.log import LogType
 
 c = Config()
 
@@ -186,13 +187,12 @@ class SSI:
                 break
 
             if 'Change Expected Amount' in event:
-                cur_val = self.window['label_expected_amount'].DisplayText
                 amnts = [x + 1 for x in range(30)]
                 layout = [
                     [
                         # sg.Input("{}".format(cur_val), focus=True, key='input_box')
                         sg.Spin(amnts,
-                                initial_value=3,
+                                initial_value=c.switches('expected'),
                                 key='input_box',
                                 size=(50, 100),
                                 font=('any 24'))
@@ -206,7 +206,11 @@ class SSI:
                 while True:
                     ev2, vals2 = win2.read()
                     if ev2 is None or ev2 == 'Exit':
+                        # set config
 
+                        c.update_switches('expected',
+                                          str(vals2['input_box']),
+                                          dump=True)
                         self.window['label_expected_amount'](str(
                             vals2['input_box']))
                         win2.close()
@@ -222,7 +226,9 @@ class SSI:
 
             if 'button_inventory' in event:
                 # clear elements
-
+                log.Log.clear(LogType.gui)
+                self.send_to_debug("", clear=True)
+                self.send_to_main("", clear=True)
                 self.log("Beginning inventory run", 'info')
                 inventory = True
                 self.set_window_title()

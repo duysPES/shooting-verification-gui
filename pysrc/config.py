@@ -20,6 +20,10 @@ class Config(configparser.ConfigParser):
 
         # self.d = DottedDict({s: dict(self.items(s)) for s in self.sections()})
 
+    def dump(self):
+        with open(self.config_file_path, "w") as conf:
+            self.write(conf)
+
     def ssi(self, section):
         """
         Returns section values of SSI header in config.ini
@@ -47,6 +51,21 @@ class Config(configparser.ConfigParser):
         return: str
         """
         return self['SIM_SERVER'][section]
+
+    def switches(self, section):
+        """
+        returns section values of switches header in config.ini
+        """
+        return self['SWITCHES'][section]
+
+    def update_switches(self, section, value, dump=True):
+        """
+        updates a field in switches section
+        """
+
+        self['SWITCHES'][section] = value
+        if dump:
+            self.dump()
 
     # def dotted_dict(self):
     #     return self.d

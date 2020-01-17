@@ -29,6 +29,11 @@ class Commands(Enum):
     Command that is used for switch to report
     debug information.
     """
+
+    NULL = (b"", -1)
+    """
+    Command that represents a NULL
+    """
     @staticmethod
     def is_ack(msg):
         """
@@ -42,6 +47,39 @@ class Commands(Enum):
         Helper method to determine if msg is NACK
         """
         return Commands.NACK.value[0] == msg
+
+    @staticmethod
+    def parse_packet(msg):
+        """
+        parses cmd byte to string for easier debugging
+        """
+        cmd = msg[3:-1]
+
+        cmdset = [
+            Commands.ACK, Commands.NACK, Commands.GoInactive,
+            Commands.SendStatus
+        ]
+        for c in cmdset:
+            if cmd == c.value[0]:
+                return c
+
+        return Commands.NULL
+
+    @staticmethod
+    def prettify(msg):
+        """
+        takes a list of bytes, converts to hex, and returns a pretty string
+        """
+        try:
+            hs = msg.hex()
+            s = [hs[i:i + 2] for i in range(0, len(hs), 2)]
+            addr = s[:3]
+            contents = s[3:-1]
+            chksum = s[-1]
+
+            return "{} {} {}".format("".join(addr), "".join(contents), chksum)
+        except Exception:
+            return ""
 
 
 class StatusFields:

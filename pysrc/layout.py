@@ -1,5 +1,6 @@
 import PySimpleGUI as sg
-
+from pysrc.config import Config
+c = Config()
 
 class LayOuts:
     """
@@ -32,13 +33,14 @@ class LayOuts:
         return layout
 
     def expected_layout(self):
+        expected = c.switches("expected")
         layout = [[sg.Text('Expected', key='label_expected')],
                   [
                       sg.Frame('',
                                border_width=1,
                                layout=[
                                    [
-                                       sg.Text('3',
+                                       sg.Text(str(expected),
                                                size=(2, 1),
                                                font='any 16',
                                                key='label_expected_amount')
@@ -118,5 +120,3 @@ class LayOuts:
             [sg.Text("N/A", key="label_voltage", size=(10,1)), sg.Text('N/A', size=(10,1),key='label_temperature')]
         ]
         return layout
-
-
