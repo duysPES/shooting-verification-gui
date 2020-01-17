@@ -13,6 +13,7 @@ from pysrc.switch import Switch
 from pysrc.commands import Status, Commands
 import pysrc.log as log
 from pysrc.log import LogType
+from pysrc.log import LOG_PATH
 
 c = Config()
 
@@ -44,8 +45,7 @@ class SSI:
                                 layout=self.layout,
                                 default_element_size=(40, 1),
                                 grab_anywhere=False,
-                                size=(str(c.ssi("width")),
-                                      str(c.ssi("height"))),
+                                size=(c.ssi("width"), c.ssi("height")),
                                 finalize=True)
         self.set_window_title()
 
@@ -223,6 +223,29 @@ class SSI:
                 # self.log('Beginning simulation', 'info')
                 # simulator = Simulator(self)
                 # simulator.run()
+
+            if 'View Logs' == values['main_menu']:
+                layout = [[
+                    sg.Multiline("",
+                                 size=(c.ssi('width'), c.ssi('height')),
+                                 key="log_view")
+                ]]
+                log_view = sg.Window("Logs",
+                                     layout=layout,
+                                     grab_anywhere=False,
+                                     size=(c.ssi("width"), c.ssi("height")),
+                                     finalize=True)
+
+                while True:
+                    ev2, vals2 = log_view.read(timeout=3)
+
+                    with open(LOG_PATH + "gui.log", "r") as l:
+                        buffer = l.read()
+                        log_view['log_view'](buffer)
+
+                    if ev2 is None or ev2 == 'Exit':
+                        log_view.close()
+                        break
 
             if 'button_inventory' in event:
                 # clear elements
