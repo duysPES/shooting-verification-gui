@@ -66,6 +66,8 @@ class SwitchManager:
 
     def update(self, switch, msg):
         switch = self.get(switch)
+        if switch is None:
+            raise ValueError("Can't update a switch, if it doesn't exist")
         switch.update(msg)
 
     @property
@@ -97,6 +99,9 @@ class Switch:
         """
         raw bytes of the payload isolated from the raw respons
         """
+
+    def __repr__(self):
+        return f"Switch< {self.raw.hex().upper()} >"
 
     @property
     def raw_address(self):

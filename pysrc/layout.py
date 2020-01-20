@@ -10,7 +10,7 @@ class LayOuts:
     """
     def main_menu(self):
         layout = sg.Menu(
-            [['File', ['View Logs']],['Edit', ['Change Expected Amount']], ['Simulation', ['Run']]],
+            [['File', ['View Logs', 'Danger Zone']],['Edit', ['Change Expected Amount']], ['Simulation', ['Run']]],
             tearoff=False,
             key='main_menu')
 

@@ -120,7 +120,7 @@ class LISC(serial.Serial):
 
         self.package.done()
 
-    def send(self, msg, tries=5, clear_buffer=True):
+    def send(self, msg, tries=5, clear_buffer=True, ignore_return=False):
         """
         ```
         input: bytes, int
@@ -147,6 +147,9 @@ class LISC(serial.Serial):
                 f"TX `{Commands.prettify(to_send)}`: {Commands.parse_packet(to_send)}",
                 'info')
             self.write(to_send)
+            if ignore_return:
+                return b""
+
             response = self.listen(resp_len, clear_buffer=clear_buffer)
             self.log(
                 f"RX {Commands.prettify(response)}: {Commands.parse_packet(response)}",

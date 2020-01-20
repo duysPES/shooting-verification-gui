@@ -13,6 +13,8 @@ from pysrc.switch import Switch
 from pysrc.commands import Status, Commands
 import pysrc.log as log
 from pysrc.log import LogType
+from pysrc.credentials import check_credentials
+
 from pysrc.log import LOG_PATH
 
 c = Config()
@@ -157,6 +159,13 @@ class SSI:
         msg = "SSI v{} {}".format(c.ssi("version"), msg)
         self.window.TKroot.title(msg)
 
+    def set_window_title_dangerous(self, msg=""):
+        """
+        Sets window title with prepended DANGER
+        """
+        msg = f"SSI v{c.ssi('version')} DANGER: {msg}"
+        self.window.TKroot.title(msg)
+
     def loop(self):
         """
         **main program loop, this is where ALL 
@@ -171,7 +180,7 @@ class SSI:
         """
 
         inventory = False
-
+        dangerzone = False
         # set both multiline elements to autoscroll
         self.window.FindElement(
             key='multiline_default_output').Autoscroll = True
@@ -185,6 +194,65 @@ class SSI:
                 pass
             if event in (None, 'Quit'):
                 break
+
+            if dangerzone:
+                from pysrc.danger import DangerousLISC
+                log.Log.clear(LogType.gui)
+                self.send_to_debug("", clear=True)
+                self.send_to_main("", clear=True)
+                self.log("Beginning Dangerous inventory run", 'warning')
+                inventory = True
+                self.set_window_title_dangerous()
+
+                expected_switches = self.read_expected()
+                self.send_to_debug(f"Expecting {expected_switches} switches..")
+
+                port = str(c.lisc('port'))
+                baudrate = int(c.lisc('baudrate'))
+                with DangerousLISC(port=port, baudrate=baudrate,
+                                   timeout=3) as lisc:
+                    self.log("Spawning thread for dangerous inventory run",
+                             'warning')
+                    thread = Process(target=lisc.do_dangerous_inventory,
+                                     args=(self.inventory_queue,
+                                           expected_switches))
+                    thread.start()
+                dangerzone = False
+
+            if 'Danger Zone' in event:
+                layout = [[sg.Text("Please enter valid credentials")],
+                          [
+                              sg.Text("Username: "),
+                              sg.Input(key="username_input", password_char="*")
+                          ],
+                          [
+                              sg.Text("Password: "),
+                              sg.Input(key="password_input", password_char="*")
+                          ], [sg.Submit(size=(10, 1))],
+                          [sg.Text("", key="status_label", size=(20, 1))]]
+
+                win2 = sg.Window("Firing Override",
+                                 layout=layout,
+                                 size=(300, 150),
+                                 finalize=True)
+                while True:
+                    ev2, vals2 = win2.read()
+                    if ev2 is None or ev2 == "Exit":
+                        break
+
+                    if ev2 == "Submit":
+                        dangerzone = True
+                        win2.close()
+                        break
+                        user = vals2['username_input']
+                        pwd = vals2['password_input']
+                        if check_credentials(user, pwd):
+                            dangerzone = True
+                            win2.close()
+                            break
+                        else:
+                            print("incorrect")
+                            win2['status_label']("Incorrect Credentials")
 
             if 'Change Expected Amount' in event:
                 amnts = [x + 1 for x in range(30)]
@@ -201,7 +269,7 @@ class SSI:
                 ]
                 win2 = sg.Window("Edit Expected Amount",
                                  layout=layout,
-                                 size=(200, 100))
+                                 size=(300, 300))
 
                 while True:
                     ev2, vals2 = win2.read()

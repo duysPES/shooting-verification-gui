@@ -1,6 +1,28 @@
 from enum import Enum
 
 
+class DangerZone(Enum):
+    """
+    Enum that holds all commands that are dangerous and revolve around
+    ballistics
+    """
+
+    PreArm = (b"\x3c", 5)
+    """
+    Pre arm switch, expect ACK
+    """
+
+    Arm = (b"\x4b", 5)
+    """
+    Arm switch, expect ACK
+    """
+
+    Fire = (b"\x5a", -1)
+    """
+    Opens FET to fire switch. Most dangerous command
+    """
+
+
 class Commands(Enum):
     """
     Enum that holds all supported commands of
@@ -59,7 +81,9 @@ class Commands(Enum):
             Commands.ACK, Commands.NACK, Commands.GoInactive,
             Commands.SendStatus
         ]
-        for c in cmdset:
+
+        danger_zone = [DangerZone.PreArm, DangerZone.Arm, DangerZone.Fire]
+        for c in cmdset + danger_zone:
             if cmd == c.value[0]:
                 return c
 
