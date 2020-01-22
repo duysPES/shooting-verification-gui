@@ -15,7 +15,7 @@ import pysrc.log as log
 # flags: u8,
 SWITCH_STATUS = [
     "VOLT: {}V\n", "TEMP: {}C\n", "DETD: {}\n", "PERROR: {}\n", "CERROR: {}\n",
-    "NFIRE: {}\n", "FLAGS: 0x{:02x}\n"
+    "NFIRE: {}\n", "FLAGS: 0x{:02x}\nF/W: {}\n"
 ]
 
 
@@ -181,7 +181,7 @@ class Switch:
 
 ######## TEST MODULES ###########
 __addr = b'\xff\x1a#\x15\xd3'
-__status = b'\x0b\xd0\xb65\x1c\x05\x01\x00\x00(h'
+__status = b'\x0b\xd0\xb65\x1c\x05\x01\x00\x00\x11(h'
 
 
 def __test_to_int_from_bytes():
