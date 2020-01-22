@@ -193,6 +193,7 @@ class SSI:
             if event != '__TIMEOUT__':
                 pass
             if event in (None, 'Quit'):
+
                 break
 
             if dangerzone:

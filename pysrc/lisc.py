@@ -85,6 +85,7 @@ class LISC(serial.Serial):
                 raise Exception(errmsg)
 
             self.log(f"Listening for broadcast [{tries}]", 'info')
+            self.package.debug(f"Attempt={tries}")
             resp = self.listen(length)
             if len(resp) == 5 and resp is not None:
                 return resp
