@@ -15,7 +15,7 @@ import pysrc.log as log
 # flags: u8,
 SWITCH_STATUS = [
     "VOLT: {}V\n", "TEMP: {}C\n", "DETD: {}\n", "PERROR: {}\n", "CERROR: {}\n",
-    "NFIRE: {}\n", "FLAGS: 0x{:02x}\nF/W: {}\n"
+    "NFIRE: {}\n", "FLAGS: 0x{:02x}\n"
 ]
 
 

@@ -46,7 +46,7 @@ class Commands(Enum):
     Command to put addressed switch into low power
     mode and allow pass-thru to next switch in chain
     """
-    SendStatus = (b"\x05", 11)
+    SendStatus = (b"\x05", 12)
     """
     Command that is used for switch to report
     debug information.
@@ -183,9 +183,9 @@ class Status:
     # To obtain Voltage, Temperature, and pretty formatting.
 
     # raw_packet of get_status is 11 bytes long
-    raw_packet = b"\\xff\\x0a\\x12\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\xba"
-    #              [---addr----][V   T   C   PE  CE  F  BF][Chksum]
-    # human-hex:      0xff0a12  01  02  03   04  05 06  07   ba
+    raw_packet = b"\\xff\\x0a\\x12\\x01\\x02\\x03\\x04\\x05\\x06\\x07\\x11\\xba"
+    #              [---addr----][V   T   C   PE  CE  F  BF FW] [Chksum]
+    # human-hex:      0xff0a12  01  02  03   04  05 06  07  11  ba
 
 
     # only interested in bytes after `address` 
@@ -216,11 +216,16 @@ class Status:
             PreArmed       : ON
             Armed          : ON
             Fired          : ON
+    F/W Version     : 7
     '''
     ```
     """
     def __init__(self, body):
         self.body = body
+        addr_len = 3
+        chksum_len = 1
+        valid_body_len = Commands.SendStatus.value[
+            1] - addr_len - chksum_len  # gets total length of response - address-checksum
 
         if not isinstance(body, bytes):
             try:
@@ -232,6 +237,13 @@ class Status:
             'NU', 'FctrMode', 'BrdcstDisabled', 'Inactive', 'Statused',
             'PreArmed', 'Armed', 'Fired'
         ]
+
+    @property
+    def firmware(self):
+        """
+        return the firmware version from switches
+        """
+        return self.body[-2]
 
     @property
     def voltage(self):

@@ -303,13 +303,15 @@ class SSI:
                                      grab_anywhere=False,
                                      size=(c.ssi("width"), c.ssi("height")),
                                      finalize=True)
-
+                prev_file_buf = ""
                 while True:
                     ev2, vals2 = log_view.read(timeout=3)
 
                     with open(LOG_PATH + "gui.log", "r") as l:
                         buffer = l.read()
-                        log_view['log_view'](buffer)
+                        if prev_file_buf != buffer:
+                            log_view['log_view'](buffer)
+                            prev_file_buf = buffer
 
                     if ev2 is None or ev2 == 'Exit':
                         log_view.close()
@@ -426,9 +428,8 @@ class SSI:
 
         elif mode == ConnMode.STATUS:
             status = Status(payload)
-            voltage = status.voltage
-            temp = status.temp
-            msg = "{}V, {}C".format(voltage, temp)
+            msg = "{}V, {}C  <FW {}>".format(status.voltage, status.temp,
+                                             status.firmware)
             self.set_window_title(msg=msg)
         else:
             errmsg = \
