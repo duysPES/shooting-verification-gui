@@ -242,9 +242,6 @@ class SSI:
                         break
 
                     if ev2 == "Submit":
-                        dangerzone = True
-                        win2.close()
-                        break
                         user = vals2['username_input']
                         pwd = vals2['password_input']
                         if check_credentials(user, pwd):

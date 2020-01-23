@@ -82,6 +82,7 @@ class LISC(serial.Serial):
                 self.log(errmsg, 'error')
                 self.package.debug(errmsg)
                 self.package.done()
+                self.off()
                 raise Exception(errmsg)
 
             self.log(f"Listening for broadcast [{tries}]", 'info')
@@ -120,6 +121,7 @@ class LISC(serial.Serial):
             time.sleep(2)
 
         self.package.done()
+        self.off()
 
     def send(self, msg, tries=5, clear_buffer=True, ignore_return=False):
         """
@@ -297,6 +299,20 @@ class LISC(serial.Serial):
 
         macro method that soft resets LISC
         """
-        self.write(b'zl')
+        self.off()
         self.delay(1)
-        self.write(b'zL')
+        self.on()
+
+    def off(self):
+        """
+        turns off lisc
+        """
+        self.log("Turning off LISC", "info")
+        self.write(b"zl")
+
+    def on(self):
+        """
+        turns on lisc
+        """
+        self.log("Turning on LISC", "info")
+        self.write(b"zL")

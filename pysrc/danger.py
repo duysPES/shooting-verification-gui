@@ -41,6 +41,7 @@ class DangerousLISC(LISC):
                 self.log(errmsg, 'error')
                 self.package.debug(errmsg)
                 self.package.done()
+                self.off()
                 raise Exception(errmsg)
 
             self.log(f"Listening for broadcast [{tries}]", 'info')
@@ -96,4 +97,5 @@ class DangerousLISC(LISC):
             self.reset()
             do_firing(firing_switch)
             print("done with switch, ", firing_switch)
+        self.off()
         self.package.done()
