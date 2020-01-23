@@ -3,8 +3,8 @@ from enum import Enum
 import sys
 import os
 
-LOG_PATH = os.path.join(sys.path[0], 'logs/')
-
+# LOG_PATH = os.path.join(sys.path[0], 'logs/')
+LOG_PATH = os.path.join(os.getenv("HOME"), "svg/logs/")
 
 class ServerLog:
     """

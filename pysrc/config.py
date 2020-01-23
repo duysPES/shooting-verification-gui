@@ -9,7 +9,8 @@ class Config(configparser.ConfigParser):
     directory.
     """
 
-    config_file_path = os.path.join(sys.path[0], 'config.ini')
+    # config_file_path = os.path.join(sys.path[0], 'config.ini')
+    config_file_path = os.path.join(os.getenv("HOME"), "svg/config.ini")
     """
     relative path to config file based on 
     where main.py is called.
