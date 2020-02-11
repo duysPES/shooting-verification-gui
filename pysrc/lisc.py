@@ -142,6 +142,7 @@ class LISC(serial.Serial):
                 Incorrect response recieved from switch.
                 Last response is: 0x{}
                 """.format(response.hex())
+                self.off()
                 raise serial.SerialException(err)
 
             # attempt to write to stream
