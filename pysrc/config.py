@@ -15,13 +15,13 @@ class Config(configparser.ConfigParser):
     def __init__(self):
         super(Config, self).__init__(self)
         # config_file_path = os.path.join(sys.path[0], 'config.ini')
-        config_file_path = os.path.join(os.getenv("HOME"), "svg/config.ini")
-        if config_file_path is None:
+        try:
+            config_file_path = os.path.join(os.getenv("HOME"),
+                                            "svg/config.ini")
+        except TypeError:
             config_file_path = os.path.join(
                 os.getenv("USERPROFILE", "svg/config.ini"))
 
-        if config_file_path is None:
-            raise ValueError("Unable to find config.ini file")
         self.config_file_path = config_file_path
         self.read(self.config_file_path)
 
