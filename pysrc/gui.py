@@ -13,7 +13,7 @@ from pysrc.switch import Switch
 from pysrc.commands import Status, Commands
 import pysrc.log as log
 from pysrc.log import LogType
-from pysrc.credentials import check_credentials
+# from pysrc.credentials import check_credentials
 
 from pysrc.log import LOG_PATH
 
@@ -244,13 +244,14 @@ class SSI:
                     if ev2 == "Submit":
                         user = vals2['username_input']
                         pwd = vals2['password_input']
-                        if check_credentials(user, pwd):
-                            dangerzone = True
-                            win2.close()
-                            break
-                        else:
-                            print("incorrect")
-                            win2['status_label']("Incorrect Credentials")
+                        dangerzone = True
+                        # if check_credentials(user, pwd):
+                        #     dangerzone = True
+                        #     win2.close()
+                        #     break
+                        # else:
+                        #     print("incorrect")
+                        #     win2['status_label']("Incorrect Credentials")
 
             if 'Change Expected Amount' in event:
                 amnts = [x + 1 for x in range(30)]
