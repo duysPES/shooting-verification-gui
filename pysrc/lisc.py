@@ -118,7 +118,7 @@ class LISC(serial.Serial):
                          update=True,
                          clear_buffer=False)
 
-            time.sleep(2)
+            time.sleep(0.5)
 
         self.package.done()
         self.off()
