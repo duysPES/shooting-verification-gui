@@ -4,7 +4,12 @@ import sys
 import os
 
 # LOG_PATH = os.path.join(sys.path[0], 'logs/')
-LOG_PATH = os.path.join(os.getenv("HOME"), "svg/logs/")
+try:
+    LOG_PATH = os.path.join(os.getenv("HOME"), "svg/logs/")
+except TypeError:
+    LOG_PATH = config_file_path = os.path.join(
+        os.getenv("USERPROFILE", "svg/config.ini"))
+
 
 class ServerLog:
     """
