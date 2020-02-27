@@ -69,7 +69,19 @@ class LISC(serial.Serial):
 
             cmd = cmd.value
             cmd = (switch.gen_package(cmd[0]), cmd[1])
-            resp = self.send(cmd, clear_buffer=clear_buffer)
+
+            num_responses = 2
+            prev_resp = None
+            resp = None
+            for i in range(num_responses):
+                resp: bytes = self.send(cmd, clear_buffer=clear_buffer)
+                if i == 0:
+                    prev_resp: bytes = resp
+                else:
+                    if prev_resp != resp:
+                        errmsg = f"REDUNDANT PACKET DOES NOT MATCH!!\n1st: `{prev_resp.hex()}`\t2nd: {resp.hex()}"
+                        self.package.debug(errmsg)
+
             if update:
                 self.switch_manager.update(switch, resp)
 
