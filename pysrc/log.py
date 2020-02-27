@@ -7,8 +7,8 @@ import os
 try:
     LOG_PATH = os.path.join(os.getenv("HOME"), "svg/logs/")
 except TypeError:
-    LOG_PATH = config_file_path = os.path.join(
-        os.getenv("USERPROFILE", "svg/config.ini"))
+    LOG_PATH = os.path.join(
+        os.getenv("USERPROFILE"), "svg\\logs\\")
 
 
 class ServerLog:

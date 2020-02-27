@@ -20,7 +20,7 @@ class Config(configparser.ConfigParser):
                                             "svg/config.ini")
         except TypeError:
             config_file_path = os.path.join(
-                os.getenv("USERPROFILE", "svg\\config.ini"))
+                os.getenv("USERPROFILE"), "svg\\config.ini")
 
         self.config_file_path = config_file_path
         self.read(self.config_file_path)
